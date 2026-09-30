@@ -7,7 +7,7 @@ import type { ObsId, SignalType, WeakId } from "@/data/signals";
 import { DELIGHT } from "@/data/delight";
 import { MEASURE_BY_ID, MODEL_MEASURES, sustainBucket } from "@/data/measures";
 import type { MeasureId } from "@/data/measures";
-import { ACTIVITY_IDS, LEVER_BY_ID, MODEL_ARCH, MODEL_LEVERS, MODEL_START, MODEL_TRIGGER, MODEL_TRIPWIRE, OWNER_ACCEPT, RACI_ACCEPT, ROLE_IDS, TIME_ACCEPT } from "@/data/route2";
+import { ACTIVITY_IDS, ARCH_BY_ID, CHALLENGE_LOST, DELIGHTED_WRONG_AT, GP_PER_CUSTOMER, LEVER_BY_ID, MODEL_ARCH, MODEL_LEVERS, MODEL_PICKUP, MODEL_START, MODEL_TRIGGER, MODEL_TRIPWIRE, OWNER_ACCEPT, R2_BUDGET, R2_FIG, R2_MONTHS, RACI_ACCEPT, ROLE_IDS, TIME_ACCEPT, modelTriggerMonth, triggerNumber } from "@/data/route2";
 import type { Criterion, OwnerId, ProcessRow, RaciLetter } from "@/data/route2";
 import { euro, tt } from "@/lib/lang";
 import type { L1State, R2State, Score } from "@/store/useStore";
@@ -19,6 +19,7 @@ import type { L1State, R2State, Score } from "@/store/useStore";
  */
 export const MENTOR_PASSCODE = "muchson123";
 export const MODEL_ORDER: MeasureId[] = ["playbook", "handover", "reviews"];
+const FUNDED = MODEL_ARCH.reduce((a, id) => a + ARCH_BY_ID[id].cost, 0);
 
 export function KEY_L1(): Partial<L1State> {
   return {
@@ -95,26 +96,35 @@ export function KEY_R2(): Partial<R2State> {
     owner: Object.fromEntries(MODEL_ARCH.map((id) => [id, OWNER_ACCEPT[id][0]])) as Record<string, OwnerId>,
     trigger: Object.fromEntries(MODEL_ARCH.map((id) => [id, MODEL_TRIGGER[id as keyof typeof MODEL_TRIGGER]])) as Record<string, string>,
     postponed: tt(
-      "The relationship owner model (€48,000) is left out. The five funded items cost €150,000 of the €170,000, and the owner model depends on people staying, so it lasts less than the process items.",
-      "Das Beziehungs-Owner-Modell (48.000 €) bleibt draußen. Die fünf finanzierten Punkte kosten 150.000 € von 170.000 €, und das Owner-Modell hängt davon ab, dass Menschen bleiben, also hält es weniger lange als die Prozesspunkte.",
+      `The relationship owner model (${euro(ARCH_BY_ID.owners.cost)}) is left out. The five funded items cost ${euro(FUNDED)} of the ${euro(R2_BUDGET)}; adding it would take the plan to ${euro(FUNDED + ARCH_BY_ID.owners.cost)}, and it rests on people staying, so it lasts less than the process items.`,
+      `Das Beziehungs-Owner-Modell (${euro(ARCH_BY_ID.owners.cost)}) bleibt draußen. Die fünf finanzierten Punkte kosten ${euro(FUNDED)} von ${euro(R2_BUDGET)}; mit ihm käme der Plan auf ${euro(FUNDED + ARCH_BY_ID.owners.cost)}, und es hängt davon ab, dass Menschen bleiben, also hält es weniger lange als die Prozesspunkte.`,
     ),
     pickup: tt(
-      "If the share of delighted customers has reached 33% by month 5, we fund the owner model from the next budget round in month 6.",
-      "Erreicht der Anteil begeisterter Kunden bis Monat 5 33 %, finanzieren wir das Owner-Modell aus der nächsten Budgetrunde in Monat 6.",
+      `If ${MODEL_PICKUP.count} or more satisfied customers give notice by month ${MODEL_PICKUP.month} because they miss a personal contact, we fund the owner model from the next budget round: by then waiting has cost as much as the model.`,
+      `Kündigen bis Monat ${MODEL_PICKUP.month} ${MODEL_PICKUP.count} oder mehr zufriedene Kunden, weil ihnen ein persönlicher Kontakt fehlt, finanzieren wir das Owner-Modell aus der nächsten Budgetrunde: Dann hat das Warten so viel gekostet wie das Modell.`,
     ),
     decision: "stage",
     assumptions: [
-      tt("Customers answer faster attention with more attachment. This is wrong if the share of delighted customers has not risen by month 5 although 70% of signals are answered in time.", "Kunden beantworten schnellere Aufmerksamkeit mit mehr Bindung. Das ist falsch, wenn der Anteil begeisterter Kunden bis Monat 5 nicht gestiegen ist, obwohl 70 % der Signale rechtzeitig beantwortet werden."),
-      tt("The CRM data is good enough for a shared view. This is wrong if fewer than 80% of customers have a complete record by month 2.", "Die CRM-Daten reichen für eine gemeinsame Sicht. Das ist falsch, wenn bis Monat 2 weniger als 80 % der Kunden einen vollständigen Datensatz haben."),
-      tt("Service has the time to run reviews next to daily work. This is wrong if fewer than 60% of customers had a review by month 5.", "Der Service hat neben der Tagesarbeit Zeit für Reviews. Das ist falsch, wenn bis Monat 5 weniger als 60 % der Kunden ein Review hatten."),
+      tt(
+        `I assume the ${R2_FIG.satisfied} satisfied customers move to 5 of 5 when we spend ${euro(ARCH_BY_ID.reviews.cost + ARCH_BY_ID.moments.cost)} on reviews and designed moments; the data is only medium sure, because 28 of them never answered the survey. I am wrong if fewer than ${MODEL_TRIPWIRE.threshold} customers rate us 5 of 5 by month ${MODEL_TRIPWIRE.month} (today ${R2_FIG.delighted}).`,
+        `Ich nehme an, dass die ${R2_FIG.satisfied} zufriedenen Kunden auf 5 von 5 steigen, wenn wir ${euro(ARCH_BY_ID.reviews.cost + ARCH_BY_ID.moments.cost)} für Reviews und gestaltete Momente ausgeben; die Daten sind nur mittel sicher, weil 28 von ihnen die Befragung nie beantwortet haben. Ich liege falsch, wenn uns bis Monat ${MODEL_TRIPWIRE.month} weniger als ${MODEL_TRIPWIRE.threshold} Kunden mit 5 von 5 bewerten (heute ${R2_FIG.delighted}).`,
+      ),
+      tt(
+        `I assume the ${R2_FIG.openDeals} customers with an open deal or a renewal move forward when every signal gets an owner fast; we spend ${euro(ARCH_BY_ID.playbook.cost + ARCH_BY_ID.handover.cost)} on the playbook and the joint handover. The data is weak, because only logged signals are counted. I am wrong if fewer than ${triggerNumber("playbook")} stalled deals have moved forward by month ${modelTriggerMonth("playbook")} (${R2_FIG.stalled} stalled in the last six months).`,
+        `Ich nehme an, dass die ${R2_FIG.openDeals} Kunden mit offenem Deal oder Verlängerung weiterkommen, wenn jedes Signal schnell einen Owner hat; wir geben ${euro(ARCH_BY_ID.playbook.cost + ARCH_BY_ID.handover.cost)} für Playbook und gemeinsame Übergabe aus. Die Daten sind schwach, weil nur erfasste Signale gezählt werden. Ich liege falsch, wenn bis Monat ${modelTriggerMonth("playbook")} weniger als ${triggerNumber("playbook")} stockende Deals weitergekommen sind (${R2_FIG.stalled} stockten in den letzten sechs Monaten).`,
+      ),
+      tt(
+        `I assume the ${R2_FIG.delighted} delighted customers stay without extra money; none of the budget goes to them. The data is weak: “a personal contact” was ticked by salespeople, and 5% rests on 2 customers a year. I am wrong if ${DELIGHTED_WRONG_AT} or more delighted customers give notice by month ${R2_MONTHS} (expected: ${DELIGHTED_WRONG_AT - 1}).`,
+        `Ich nehme an, dass die ${R2_FIG.delighted} begeisterten Kunden ohne zusätzliches Geld bleiben; nichts vom Budget geht an sie. Die Daten sind schwach: „Persönlicher Kontakt“ wurde von Verkäufern angekreuzt, und 5 % beruhen auf 2 Kunden pro Jahr. Ich liege falsch, wenn bis Monat ${R2_MONTHS} ${DELIGHTED_WRONG_AT} oder mehr begeisterte Kunden kündigen (erwartet: ${DELIGHTED_WRONG_AT - 1}).`,
+      ),
     ],
     tripKpi: MODEL_TRIPWIRE.kpi,
     tripThreshold: String(MODEL_TRIPWIRE.threshold),
     tripMonth: MODEL_TRIPWIRE.month,
     tripAction: "adjust",
     challenge: tt(
-      "I keep the reviews. Two losses in month 3 are too few to judge a system that starts working in month 5, and the top seller's visits would tie the key customers to one person again. I would call both customers within a week to learn what the competitor's team offered, add a named service lead to our twenty largest customers from the existing review budget, and check the tripwire in month 5 as agreed.",
-      "Ich behalte die Reviews. Zwei Verluste in Monat 3 sind zu wenig, um ein System zu beurteilen, das ab Monat 5 wirkt, und die Besuche des besten Verkäufers würden die Schlüsselkunden wieder an eine Person binden. Ich würde beide Kunden innerhalb einer Woche anrufen, um zu erfahren, was das Team des Wettbewerbers bot, den zwanzig größten Kunden aus dem bestehenden Review-Budget eine benannte Service-Leitung geben und den Tripwire wie vereinbart in Monat 5 prüfen.",
+      `I keep the reviews. The two losses cost ${CHALLENGE_LOST} × ${euro(GP_PER_CUSTOMER)} = ${euro(CHALLENGE_LOST * GP_PER_CUSTOMER)} of gross profit a year, less than the ${euro(ARCH_BY_ID.stars.cost)} the top seller's visits would cost, and the visits would tie the key customers to one person again. I would call both customers now to learn what the competitor's team offered, give our largest customers a named service lead from the existing review budget, and check the tripwire as agreed: ${MODEL_TRIPWIRE.threshold} customers rating us 5 of 5 by month ${MODEL_TRIPWIRE.month}.`,
+      `Ich behalte die Reviews. Die zwei Verluste kosten ${CHALLENGE_LOST} × ${euro(GP_PER_CUSTOMER)} = ${euro(CHALLENGE_LOST * GP_PER_CUSTOMER)} Rohertrag pro Jahr, weniger als die ${euro(ARCH_BY_ID.stars.cost)}, die die Besuche des besten Verkäufers kosten würden, und die Besuche würden die Schlüsselkunden wieder an eine Person binden. Ich würde beide Kunden jetzt anrufen, um zu erfahren, was das Team des Wettbewerbers bot, unseren größten Kunden aus dem bestehenden Review-Budget eine benannte Service-Leitung geben und den Tripwire wie vereinbart prüfen: ${MODEL_TRIPWIRE.threshold} Kunden mit 5 von 5 bis Monat ${MODEL_TRIPWIRE.month}.`,
     ),
   };
 }

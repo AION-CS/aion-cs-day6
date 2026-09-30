@@ -12,7 +12,9 @@ import { MentorGuide } from "@/components/ui/MentorGuide";
 import { PlacementBoard } from "@/components/ui/PlacementBoard";
 import { RevealHint } from "@/components/ui/RevealHint";
 import { WritingHelp } from "@/components/ui/WritingHelp";
-import { AREA_TAGS, AREA_TESTS, REASONS } from "@/data/reasons";
+import { AREA_TAGS, AREA_TESTS, REASONS, REASON_KEY } from "@/data/reasons";
+import { ExampleAnswer } from "@/components/ui/ExampleAnswer";
+import { BlockMissing } from "@/components/ui/BlockMissing";
 import type { AreaTag, ReasonId } from "@/data/reasons";
 import { FIGURES, FIGURE_IDS, NETSOL } from "@/data/delight";
 import type { FigureId } from "@/data/delight";
@@ -44,6 +46,7 @@ export function Block11() {
       id="block-1-1"
       title={tt("Block 1.1 · Sort why customers feel no tie", "Block 1.1 · Sortieren, warum Kunden keine Bindung spüren")}
       kind="OBJECTIVE"
+      core
       minutes={BLOCK_MINUTES["1.1"]}
       findIt={tt("Route 1 → Task 1 → the nine statements on the sort board below, from NetSolutions' account reviews and exit calls. Answer on the sort board.", "Route 1 → Task 1 → die neun Aussagen auf der Sortiertafel unten, aus Account-Reviews und Abschlussgesprächen von NetSolutions. Antworten Sie auf der Sortiertafel.")}
     >
@@ -58,6 +61,7 @@ export function Block11() {
         undoCount={l1.sortHistory.length}
         redoCount={l1.sortFuture.length}
         domId={IDS.reason}
+        keyPhrases={REASON_KEY}
         clues={Object.fromEntries(REASONS.map((r) => [r.id, r.clue]))}
         reasons={Object.fromEntries(REASONS.map((r) => [r.id, r.why]))}
         result={l1.sortResult}
@@ -94,9 +98,23 @@ export function Block11() {
         onChange={(v) => patch({ extraReason: v })}
         min={MIN_LINE}
         rows={2}
-      />
+      >
+        <WritingHelp
+          id="extra-reason-kit"
+          refs={[
+            { label: tt("The nine statements", "Die neun Aussagen"), value: tt("so yours is not one of them", "damit Ihre keine davon ist"), target: IDS.reason(REASONS[0].id) },
+            { label: tt("The three test questions (Materi A3)", "Die drei Testfragen (Materi A3)"), value: AREA_TESTS.map((a) => a.name).join(" · "), target: "mat-A3" },
+          ]}
+          steps={[
+            tt("Think of something a satisfied customer could say, not a complaint about the service itself.", "Denken Sie an etwas, das ein zufriedener Kunde sagen könnte, keine Beschwerde über den Service selbst."),
+            tt("Name its area and say which test question decides it.", "Nennen Sie den Bereich und sagen Sie, welche Testfrage ihn entscheidet."),
+          ]}
+        />
+      </TextBox>
+      <ExampleAnswer id="extra-reason-example" guide={extraReasonGuide()} />
       {mentor && <MentorGuide guide={extraReasonGuide()} />}
       <AnswerKey block={sortKey()} />
+      <BlockMissing block="1.1" route={1} />
     </AnswerBlock>
   );
 }
@@ -126,10 +144,11 @@ export function Block12() {
       id="block-1-2"
       title={tt("Block 1.2 · What is delight worth? Three figures", "Block 1.2 · Was ist Begeisterung wert? Drei Werte")}
       kind="OBJECTIVE + JUDGED"
+      core
       minutes={BLOCK_MINUTES["1.2"]}
       findIt={tt("Route 1 → Task 1 → the three tables “Customer groups”, “All customers” and “The plan” directly below. Answer in the fields under the tables.", "Route 1 → Task 1 → die drei Tabellen „Kundengruppen“, „Alle Kunden“ und „Der Plan“ direkt darunter. Antworten Sie in den Feldern unter den Tabellen.")}
     >
-      <MaterialRefs refs={["A4"]} />
+      <MaterialRefs refs={["A4", "A1"]} />
       <p className="text-body text-ink">
         <Gloss>
           {tt(
@@ -259,9 +278,16 @@ export function Block12() {
             tt("Say what moving 30 customers from satisfied to delighted would keep.", "Sagen Sie, was es hielte, 30 Kunden von zufrieden zu begeistert zu bringen."),
             tt("Finish with what that means for where NetSolutions should invest.", "Schließen Sie damit, was das dafür bedeutet, wo NetSolutions investieren sollte."),
           ]}
-          refs={[{ label: tt("Average yearly contract", "Durchschnittlicher Jahresvertrag"), value: euro(NETSOL.contract), target: "del-contract" }]}
+          refs={[
+            { label: tt("Your F1 (satisfied, lost a year)", "Ihr F1 (zufrieden, pro Jahr verloren)"), value: l1.fig.F1 || tt("not filled yet", "noch leer"), target: IDS.figure("F1") },
+            { label: tt("Your F2 (delighted, lost a year)", "Ihr F2 (begeistert, pro Jahr verloren)"), value: l1.fig.F2 || tt("not filled yet", "noch leer"), target: IDS.figure("F2") },
+            { label: tt("Your F3 (kept by moving customers)", "Ihr F3 (durch Verschieben gehalten)"), value: l1.fig.F3 || tt("not filled yet", "noch leer"), target: IDS.figure("F3") },
+            { label: tt("Customers to become delighted", "Kunden, die begeistert werden sollen"), value: String(NETSOL.moved), target: "del-moved" },
+            { label: tt("Satisfied against delighted (Materi A1)", "Zufrieden gegen begeistert (Materi A1)"), value: tt("a 4 feels safe and is not", "eine 4 fühlt sich sicher an und ist es nicht"), target: "mat-A1" },
+          ]}
         />
       </TextBox>
+      <ExampleAnswer id="worth-example" guide={worthGuide()} />
       {mentor && <MentorGuide guide={worthGuide()} />}
       <CheckBar onCheck={check} checkLabel={tt("Check my figures and sentence", "Meine Werte und meinen Satz prüfen")} checks={l1.checks} />
       {l1.checks > 0 && (
@@ -274,6 +300,7 @@ export function Block12() {
               )}
         </Reading>
       )}
+      <BlockMissing block="1.2" route={1} />
     </AnswerBlock>
   );
 }
@@ -291,6 +318,7 @@ export function Block13() {
       id="block-1-3"
       title={tt("Block 1.3 · What is missing, and three approaches to delight", "Block 1.3 · Was fehlt, und drei Ansätze für Begeisterung")}
       kind="OBJECTIVE + JUDGED"
+      core={false}
       minutes={BLOCK_MINUTES["1.3"]}
       findIt={tt("Route 1 → Task 1 → the review summary below, your sort in Block 1.1 and the three factors in Materi A2. Answer in the fields below.", "Route 1 → Task 1 → die Review-Zusammenfassung unten, Ihre Sortierung in Block 1.1 und die drei Faktoren in Materi A2. Antworten Sie in den Feldern unten.")}
     >
@@ -346,7 +374,21 @@ export function Block13() {
                 </select>
                 {a.factor && <p className="mt-1 text-micro normal-case tracking-normal text-ash">{tt("Chosen: ", "Gewählt: ")}{FACTOR_LABEL[a.factor]}</p>}
               </div>
+              <WritingHelp
+                id={`approach-kit-${i}`}
+                refs={[
+                  { label: tt("The frame", "Der Rahmen"), value: APPROACH_FRAME.v, target: IDS.approach(i) },
+                  { label: tt("The three factors (Materi A2)", "Die drei Faktoren (Materi A2)"), value: FACTORS.map((f) => f.label).join(" · "), target: "mat-A2" },
+                  { label: tt("Factors your other approaches use", "Faktoren Ihrer anderen Ansätze"), value: l1.approaches.filter((_, j) => j !== i && l1.approaches[j].factor).map((b) => FACTOR_LABEL[b.factor!]).join(", ") || tt("none yet", "noch keine"), target: IDS.approach(i === 0 ? 1 : 0) },
+                ]}
+                steps={[
+                  tt("Choose a factor no other approach uses.", "Wählen Sie einen Faktor, den kein anderer Ansatz nutzt."),
+                  tt("Say what NetSolutions does and for whom, and what the customer feels or does as a result.", "Sagen Sie, was NetSolutions tut und für wen, und was der Kunde dadurch fühlt oder tut."),
+                  tt("Finish with “because …” and the factor it builds.", "Schließen Sie mit „weil …“ und dem Faktor, den es aufbaut."),
+                ]}
+              />
             </TextBox>
+            <ExampleAnswer id={`approach-example-${i}`} guide={approachGuide(i)} />
             {mentor && <MentorGuide guide={approachGuide(i)} />}
           </div>
         ))}
@@ -359,6 +401,7 @@ export function Block13() {
             : tt(`${l1.missingFlagged ? "Answer a is outlined, with a clue. " : ""}${l1.apprFlagged.length ? `${l1.apprFlagged.length} approach${l1.apprFlagged.length === 1 ? " is" : "es are"} outlined: a factor is missing or repeated, the text is short, or it gives no reason.` : ""}`, `${l1.missingFlagged ? "Antwort a ist markiert, mit Hinweis. " : ""}${l1.apprFlagged.length ? `${l1.apprFlagged.length} ${l1.apprFlagged.length === 1 ? "Ansatz ist" : "Ansätze sind"} markiert: Ein Faktor fehlt oder wiederholt sich, der Text ist kurz, oder er nennt keinen Grund.` : ""}`)}
         </Reading>
       )}
+      <BlockMissing block="1.3" route={1} />
     </AnswerBlock>
   );
 }
@@ -379,6 +422,7 @@ export function Block14() {
       id="block-1-4"
       title={tt("Block 1.4 · Coaching reflection: from Level 1 to Level 2", "Block 1.4 · Coaching-Reflexion: von Level 1 zu Level 2")}
       kind="JUDGED"
+      core={false}
       minutes={BLOCK_MINUTES["1.4"]}
       findIt={tt("Route 1 → Task 1 → your own answers in Blocks 1.1 to 1.3, and the system callout in Materi A6. Answer in the three fields below.", "Route 1 → Task 1 → Ihre eigenen Antworten in den Blöcken 1.1 bis 1.3 und der Systemhinweis in Materi A6. Antworten Sie in den drei Feldern unten.")}
     >
@@ -388,10 +432,30 @@ export function Block14() {
       </p>
       {fields.map((f) => (
         <div key={f.k} className="space-y-1.5">
-          <TextBox id={IDS.reflect(f.k)} label={f.label} help={f.help} value={l1.reflect[f.k]} onChange={(v) => patch((s) => ({ reflect: { ...s.reflect, [f.k]: v } }))} min={MIN_LINE} rows={3} />
+          <TextBox id={IDS.reflect(f.k)} label={f.label} help={f.help} value={l1.reflect[f.k]} onChange={(v) => patch((s) => ({ reflect: { ...s.reflect, [f.k]: v } }))} min={MIN_LINE} rows={3}>
+            <WritingHelp
+              id={`reflect-kit-${f.k}`}
+              refs={
+                f.k === "satisfaction"
+                  ? [
+                      { label: tt("Your F1 and F2", "Ihr F1 und F2"), value: `${l1.fig.F1 || "—"} · ${l1.fig.F2 || "—"}`, target: IDS.figure("F1") },
+                      { label: tt("The curve in Materi A1", "Die Kurve in Materi A1"), value: tt("retention jumps only at 5 of 5", "Bindung springt erst bei 5 von 5"), target: "mat-A1" },
+                    ]
+                  : f.k === "signal"
+                    ? [
+                        { label: tt("The four signal types (Materi A5)", "Die vier Signalarten (Materi A5)"), value: tt("interest, comparison, decision proximity, uncertainty", "Interesse, Vergleich, Entscheidungsnähe, Unsicherheit"), target: "mat-A5" },
+                        { label: tt("Reading a signal right or wrong (Materi A6)", "Ein Signal richtig oder falsch lesen (Materi A6)"), value: tt("what happens next", "was dann passiert"), target: "mat-A6" },
+                      ]
+                    : [{ label: tt("System instead of individual action (Materi A6)", "System statt Einzelaktion (Materi A6)"), value: tt("reacting against managing", "Reagieren gegen Steuern"), target: "mat-A6" }]
+              }
+              steps={[tt("Name one concrete thing you found or saw.", "Nennen Sie eine konkrete Sache, die Sie gefunden oder gesehen haben."), tt("Say what it means for how NetSolutions works.", "Sagen Sie, was sie für die Arbeitsweise von NetSolutions bedeutet.")]}
+            />
+          </TextBox>
+          <ExampleAnswer id={`reflect-example-${f.k}`} guide={reflectGuide(f.k)} />
           {mentor && <MentorGuide guide={reflectGuide(f.k)} />}
         </div>
       ))}
+      <BlockMissing block="1.4" route={1} />
     </AnswerBlock>
   );
 }

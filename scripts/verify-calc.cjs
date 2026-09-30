@@ -9,6 +9,9 @@ const fs = require("fs");
 const Module = require("module");
 const ts = require(path.join(process.cwd(), "node_modules", "typescript"));
 
+// A tiny in-memory localStorage, so the store's persist API (migrate, merge) can be exercised outside a browser.
+const mem = new Map();
+global.localStorage = { getItem: (k) => (mem.has(k) ? mem.get(k) : null), setItem: (k, v) => mem.set(k, String(v)), removeItem: (k) => mem.delete(k), clear: () => mem.clear(), key: () => null, length: 0 };
 const root = process.cwd();
 const origResolve = Module._resolveFilename;
 Module._resolveFilename = function (request, ...rest) {
@@ -125,6 +128,114 @@ for (const l of ["en", "de"]) {
   eq(`[${l}] model tripwire flags nothing`, checks.tripFlagsOf(rr), []);
 }
 lang.setCurrentLang("en");
+
+
+// --- Route 2 · every number comes from a method on printed figures (CLAUDE.md #43) ---------------------------------
+const cr2 = require("@/lib/calcR2");
+const mg = require("@/lib/mentorGuide");
+eq("kept per customer moved a year", r2.KEPT_PER_MOVE, 1440);
+eq("gross profit per customer a year", r2.GP_PER_CUSTOMER, 9600);
+eq("trigger numbers by method", Object.fromEntries(r2.MODEL_ARCH.map((id) => [id, r2.triggerNumber(id)])), { view: 80, playbook: 6, handover: 5, reviews: 10, moments: 6 });
+eq("trigger months from the model start months", Object.fromEntries(r2.MODEL_ARCH.map((id) => [id, r2.modelTriggerMonth(id)])), { view: 2, playbook: 4, handover: 5, reviews: 6, moments: 6 });
+ok("every model trigger month inside the plan", r2.MODEL_ARCH.every((id) => r2.modelTriggerMonth(id) <= r2.R2_MONTHS));
+eq("tripwire = 40 + payback of the customer items, month of the last one", r2.MODEL_TRIPWIRE, { kpi: "delighted", threshold: 60, month: 6 });
+eq("pickup point by the cost of waiting", r2.MODEL_PICKUP, { item: "owners", count: 5, month: 6 });
+eq("delighted group: expected leavers and the count that proves it wrong", [r2.DELIGHTED_EXPECTED, r2.DELIGHTED_WRONG_AT], [1, 2]);
+for (const l of ["en", "de"]) {
+  lang.setCurrentLang(l);
+  const k2 = key.KEY_R2();
+  for (const id of r2.MODEL_ARCH) {
+    const t = k2.trigger[id];
+    ok(`[${l}] model trigger ${id} states its method number and month`, t.includes(String(r2.triggerNumber(id))) && t.includes(String(r2.modelTriggerMonth(id))));
+  }
+  ok(`[${l}] pickup states 5 and month 6`, k2.pickup.includes("5") && k2.pickup.includes("6"));
+  ok(`[${l}] assumption 1 uses the tripwire number (same thing, same month)`, k2.assumptions[0].includes("60") && k2.assumptions[0].includes(String(r2.MODEL_TRIPWIRE.month)));
+  ok(`[${l}] assumption 2 uses the playbook trigger number and month`, k2.assumptions[1].includes(`${r2.triggerNumber("playbook")} `) && k2.assumptions[1].includes(String(r2.modelTriggerMonth("playbook"))));
+  ok(`[${l}] assumption 3 uses the count that proves it wrong`, k2.assumptions[2].includes(String(r2.DELIGHTED_WRONG_AT)));
+  ok(`[${l}] challenge states the cost of the two losses`, k2.challenge.includes(lang.euro(2 * r2.GP_PER_CUSTOMER)));
+  // the learner-facing example never equals the model answer on a graded or calculated field (CLAUDE.md #23)
+  for (const [name, g] of [["worth", mg.worthGuide()], ["why", mg.whyGuide()], ["greatest", mg.greatestGuide()], ["pickup", mg.pickupGuide()], ["postponed", mg.postponedGuide()], ["trip", mg.challengeGuide()], ...r2.MODEL_ARCH.map((id) => [`trigger ${id}`, mg.triggerGuide(id)]), ...[0, 1, 2].map((i) => [`assumption ${i + 1}`, mg.assumptionGuide(i)])])
+    ok(`[${l}] ${name}: learner example exists and differs from the model answer`, !!g.example && g.example !== g.answer);
+}
+lang.setCurrentLang("en");
+
+// the calculators reproduce the model numbers and flag exactly a wrong part
+{
+  const rr0 = { ...store.emptyR2(), ...key.KEY_R2(), calc: { "pickup.item": "owners" } };
+  const b = cr2.r2Builders(rr0);
+  const res = (k) => calc.builderResult(b[k], k, calc.modelParts({ [k]: b[k] }));
+  for (const id of r2.MODEL_ARCH) {
+    eq(`calculator trig-${id} = trigger number`, res(`trig-${id}`), r2.triggerNumber(id));
+    eq(`calculator month-${id} = trigger month`, res(`month-${id}`), r2.modelTriggerMonth(id));
+  }
+  eq("calculator pickup = 5", res("pickup"), 5);
+  eq("calculator trip = 60", res("trip"), 60);
+  eq("calculator stay = 2", res("stay"), 2);
+  eq("calculator loss = 19200", res("loss"), 19200);
+  const bad = { ...calc.modelParts({ "trig-reviews": b["trig-reviews"] }), "trig-reviews.kept": "9600" };
+  eq("a wrong part is flagged alone (kept per customer)", calc.wrongParts(b["trig-reviews"], "trig-reviews", bad), ["trig-reviews.kept"]);
+  const badM = { ...calc.modelParts({ "month-playbook": b["month-playbook"] }), "month-playbook.setup": "6" };
+  eq("a wrong month part is flagged alone (weeks not divided by 4)", calc.wrongParts(b["month-playbook"], "month-playbook", badM), ["month-playbook.setup"]);
+  // a learner who starts the reviews in month 2 gets their own month checked, not the model's
+  const own = { ...rr0, start: { ...rr0.start, reviews: 2 } };
+  const bo = cr2.r2Builders(own);
+  eq("own start month: the month calculator expects the learner's own month", calc.builderResult(bo["month-reviews"], "month-reviews", calc.modelParts({ "month-reviews": bo["month-reviews"] })), 5);
+}
+
+// the mentor fill enters every calculator part (#26)
+{
+  store.useStore.getState().mentorFill();
+  const st = store.useStore.getState();
+  const b = cr2.r2Builders(st.r2);
+  for (const k of [...r2.MODEL_ARCH.flatMap((id) => [`trig-${id}`, `month-${id}`]), "pickup", "trip", "stay", "loss"]) ok(`mentor fill: calculator ${k} complete and right`, calc.allPartsRight(b[k], k, st.r2.calc));
+}
+
+// Elbe's worked numbers (Materi B5/B6) differ from the case and agree with B5's triggers
+{
+  const dB = require("@/components/materi/diagramsB");
+  eq("Elbe method results", dB.ELBE_RESULT, { coverage: 75, dealPayback: 5, customerPayback: 8, waiting: 4, step: 18, month: 5 });
+  ok("Elbe numbers differ from NetSolutions'", dB.ELBE_RESULT.coverage !== 80 && dB.ELBE_RESULT.dealPayback !== 6 && dB.ELBE.contract !== r2.R2_FIG.contract);
+}
+
+// --- Core / Optional (CLAUDE.md #35, #40) --------------------------------------------------------------------------
+for (const l of ["en", "de"]) {
+  lang.setCurrentLang(l);
+  const full1 = key.KEY_L1();
+  const full2 = key.KEY_R2();
+  const l1 = { ...store.emptyL1(), sort: full1.sort, extraReason: full1.extraReason, fig: full1.fig, worth: full1.worth, tags: full1.tags, chosen: full1.chosen, aims: full1.aims, eff: full1.eff, sus: full1.sus, fea: full1.fea, order: full1.order, why: full1.why };
+  const rr = { ...store.emptyR2(), process: full2.process, alloc: full2.alloc, start: full2.start, owner: full2.owner, trigger: full2.trigger, postponed: full2.postponed, pickup: full2.pickup, decision: full2.decision, assumptions: full2.assumptions, tripKpi: full2.tripKpi, tripThreshold: full2.tripThreshold, tripMonth: full2.tripMonth, tripAction: full2.tripAction, challenge: full2.challenge };
+  const p = { participant: { name: "Core Only" }, ui: { bannerDismissed: {}, sectionsRead: {}, lang: l }, l1, r2: rr };
+  eq(`[${l}] Core-only fill empties the Route 1 missing list`, missing.l1Missing(p).map((m) => m.label), []);
+  eq(`[${l}] Core-only fill empties the Route 2 missing list`, missing.r2Missing(p).map((m) => m.label), []);
+  // decisions are free (#38): an over-budget plan with reasons is not missing anything
+  const over = { ...p, r2: { ...rr, alloc: { ...rr.alloc, owners: true }, start: { ...rr.start, owners: 2 }, owner: { ...rr.owner, owners: "saleslead" }, trigger: { ...rr.trigger, owners: "If fewer than 12 customers with an owner rate us 5 of 5 by month 6, then …" } } };
+  ok(`[${l}] over budget: Block 3.5 still complete`, progress.taskBlocks(over).b35);
+  ok(`[${l}] over budget: no budget entry in the missing list`, !missing.r2Missing(over).some((m) => /budget|Budget/.test(m.label)));
+}
+lang.setCurrentLang("en");
+eq("Optional blocks", progress.OPTIONAL_BLOCKS, ["b13", "b14", "b22", "b31", "b33", "b34"]);
+const mi = require("@/data/materialIndex");
+eq("Optional cards", mi.MATERIALS.filter((m) => m.optional).map((m) => m.id), ["A6", "B1", "B3", "B4"]);
+eq("Materi minutes", ["A", "B"].map((b) => mi.MATERIALS.filter((m) => m.block === b).reduce((s, m) => s + m.minutes, 0)), [60, 60]);
+
+// --- key phrases are exact substrings of the item text, in both languages ------------------------------------------
+for (const l of ["en", "de"]) {
+  lang.setCurrentLang(l);
+  for (const r of rs.REASONS) ok(`[${l}] key phrase inside statement ${r.id}`, r.quote.includes(rs.REASON_KEY[r.id]));
+  for (const o of sig.OBSERVATIONS) ok(`[${l}] key phrase inside observation ${o.id}`, o.text.includes(sig.OBS_KEY[o.id]));
+}
+lang.setCurrentLang("en");
+
+// --- an old-shape blob (version 1) migrates and merges -----------------------------------------------------------
+{
+  const opts = store.useStore.persist.getOptions();
+  const old = { participant: { name: "Old" }, ui: { bannerDismissed: {}, sectionsRead: { A1: true }, lang: "de" }, l1: { worth: "old" }, r2: { tripKpi: "delighted", tripThreshold: "33", challenge: "kept" } };
+  const migrated = opts.migrate(JSON.parse(JSON.stringify(old)), 1);
+  const merged = opts.merge(migrated, store.useStore.getState());
+  eq("v1 → v2: the % threshold of the delighted tripwire is cleared", merged.r2.tripThreshold, "");
+  eq("v1 → v2: calculators filled from the defaults", [merged.r2.calc, merged.r2.calcFlags], [{}, []]);
+  eq("v1 → v2: other answers kept", [merged.participant.name, merged.l1.worth, merged.r2.challenge, merged.ui.lang, merged.ui.sectionsRead.A1], ["Old", "old", "kept", "de", true]);
+}
 
 console.log(failed ? `\n${failed} check(s) FAILED` : "\nAll checks passed.");
 process.exit(failed ? 1 : 0);

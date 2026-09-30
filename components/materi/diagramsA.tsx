@@ -2,7 +2,7 @@
 
 import { useId, useState } from "react";
 import clsx from "clsx";
-import { Diagram, Insight, Toggles } from "@/components/materi/kit";
+import { Diagram, Insight, Story, ThePoint, Toggles, useStory } from "@/components/materi/kit";
 import { AREA_LABEL } from "@/data/reasons";
 import type { AreaTag } from "@/data/reasons";
 import { SIGNALS, SIGNAL_IDS } from "@/data/signals";
@@ -19,6 +19,8 @@ import { Gloss } from "@/lib/glossify";
  * Case assumption), never NetSolutions, so the answer to a task block is never printed. Every control is followed by an always-visible
  * "What this shows" (CLAUDE.md #20).
  */
+/** "In plain words:" leads every reading of a control (CLAUDE.md #36). */
+const plain = () => tt("In plain words: ", "In einfachen Worten: ");
 const C = { ink: "#1F2328", ash: "#59606A", paper: "#FFFEFA", mist: "#ECE6D6", line: "#D8D1BF", amber: "#8A5A0B", gold: "#D99A2B", teal: "#0F6B6B", tealSoft: "#DFEEEB", rust: "#A4472A", data: "#2F5D62", grey: "#8B9098", soft: "#FBF0D6" };
 
 /* ------------------------------------------------------------------ A1 · satisfaction against loyalty */
@@ -26,12 +28,38 @@ const C = { ink: "#1F2328", ash: "#59606A", paper: "#FFFEFA", mist: "#ECE6D6", l
 const STAY = [0, 20, 35, 50, 60, 92];
 export function SatisfactionCurve() {
   const uid = useId().replace(/:/g, "");
-  const [score, setScore] = useState(4);
+  const [score, setScoreRaw] = useState(4);
+  const story = useStory([
+    {
+      title: tt("Delighted customers stay", "Begeisterte Kunden bleiben"),
+      say: tt(`Meet Kontor Systems, an example IT company, not your case. Of 100 customers who rate it 5 of 5 (delighted), ${STAY[5]} are still there a year later.`, `Das ist Kontor Systems, ein Beispielunternehmen, nicht Ihr Fall. Von 100 Kunden, die es mit 5 von 5 bewerten (begeistert), sind ein Jahr später noch ${STAY[5]} da.`),
+      look: tt("the point at 5", "den Punkt bei 5"),
+      apply: () => setScoreRaw(5),
+    },
+    {
+      title: tt("Satisfied customers leave", "Zufriedene Kunden gehen"),
+      say: tt(`Now the customers who rate it 4 of 5 (satisfied). Only ${STAY[4]} of 100 stay. They have no complaint, and no reason to stay either.`, `Jetzt die Kunden, die 4 von 5 geben (zufrieden). Nur ${STAY[4]} von 100 bleiben. Sie haben keine Beschwerde, aber auch keinen Grund zu bleiben.`),
+      look: tt("the point at 4, and the gap up to 5", "den Punkt bei 4 und die Lücke bis 5"),
+      apply: () => setScoreRaw(4),
+    },
+    {
+      title: tt("The point", "Das Wichtigste"),
+      say: tt(`The step from 4 to 5 (+${STAY[5] - STAY[4]}) is the largest on the curve. A 4 feels safe and is not: aim for delight, not for “no complaints”. Tap the other scores to compare.`, `Der Schritt von 4 auf 5 (+${STAY[5] - STAY[4]}) ist der größte der Kurve. Eine 4 fühlt sich sicher an und ist es nicht: Zielen Sie auf Begeisterung, nicht auf „keine Beschwerden“. Tippen Sie auf die anderen Werte zum Vergleich.`),
+      look: tt("the shaded zone of the big jump", "die schattierte Zone des großen Sprungs"),
+      apply: () => setScoreRaw(5),
+    },
+  ]);
+  const setScore = (v: number) => {
+    story.leave();
+    setScoreRaw(v);
+  };
   const X = (s: number) => 70 + (s - 1) * 110;
   const Y = (p: number) => 200 - p * 1.8;
   const jump = STAY[score] - STAY[score - 1];
   return (
     <div className="space-y-3">
+      <ThePoint>{tt("A customer who gives 4 out of 5 is not safe. Loyalty stays low up to “satisfied” and jumps only at “delighted”.", "Ein Kunde, der 4 von 5 gibt, ist nicht sicher. Die Treue bleibt bis „zufrieden“ niedrig und springt erst bei „begeistert“.")}</ThePoint>
+      <Story steps={story.plan} step={story.step} onStep={story.go} />
       <svg viewBox="0 0 560 240" className="mx-auto h-auto w-full max-w-[600px]" role="img" aria-labelledby={`${uid}-t ${uid}-d`}>
         <title id={`${uid}-t`}>{tt("Share of customers still with Kontor a year later, by satisfaction score", "Anteil der Kunden, die ein Jahr später noch bei Kontor sind, nach Zufriedenheitswert")}</title>
         <desc id={`${uid}-d`}>{[1, 2, 3, 4, 5].map((s) => `${s}: ${STAY[s]}%`).join(", ")}</desc>
@@ -41,6 +69,7 @@ export function SatisfactionCurve() {
         <polyline points={[1, 2, 3, 4, 5].map((s) => `${X(s)},${Y(STAY[s])}`).join(" ")} fill="none" stroke={C.data} strokeWidth="3.5" />
         {[1, 2, 3, 4, 5].map((s) => (
           <g key={s} className="hit" role="button" tabIndex={0} aria-label={tt(`Score ${s}`, `Wert ${s}`)} onClick={() => setScore(s)} onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setScore(s)}>
+            {story.step !== null && s === score && <circle cx={X(s)} cy={Y(STAY[s])} r="17" fill="none" stroke={C.amber} strokeWidth="2.5" strokeDasharray="5 4" className="anim-pulse" />}
             <circle className="hit-shape" cx={X(s)} cy={Y(STAY[s])} r={s === score ? 10 : 7} fill={s === score ? C.gold : C.paper} stroke={C.ink} strokeWidth="1.6" />
             <text x={X(s)} y={Y(STAY[s]) - 14} textAnchor="middle" fontSize="12.5" fontWeight="700" fill={C.ink}>{`${STAY[s]}%`}</text>
             <text x={X(s)} y="218" textAnchor="middle" fontSize="12" fill={C.ash}>{s}</text>
@@ -53,6 +82,7 @@ export function SatisfactionCurve() {
         <Toggles<string> label={tt("Score", "Wert")} value={String(score)} onChange={(v) => setScore(Number(v))} options={[1, 2, 3, 4, 5].map((s) => ({ id: String(s), label: `${s}` }))} />
       </div>
       <Insight>
+        {plain()}
         {score === 1
           ? tt("At 1 only 20 of 100 customers are still there a year later. Nobody argues about this group; the question is the others.", "Bei 1 sind nur 20 von 100 Kunden ein Jahr später noch da. Über diese Gruppe streitet niemand; die Frage sind die anderen.")
           : tt(
@@ -88,7 +118,37 @@ export function ThreeFactors() {
   const uid = useId().replace(/:/g, "");
   const [on, setOn] = useState<FactorKey[]>(["trust"]);
   const [focus, setFocus] = useState<FactorKey>("trust");
+  const story = useStory([
+    {
+      title: tt("All three pillars", "Alle drei Säulen"),
+      say: tt("Meet Kontor, an example company, not your case. This customer relies on a person there, feels valued and gets useful advice. All three pillars stand: it would choose Kontor again.", "Das ist Kontor, ein Beispielunternehmen, nicht Ihr Fall. Dieser Kunde verlässt sich auf eine Person dort, fühlt sich geschätzt und bekommt nützlichen Rat. Alle drei Säulen stehen: Er würde Kontor wieder wählen."),
+      look: tt("the bar on top, carried by three pillars", "den Balken oben, von drei Säulen getragen"),
+      apply: () => {
+        setOn(["trust", "appreciation", "relevance"]);
+        setFocus("trust");
+      },
+    },
+    {
+      title: tt("One pillar missing", "Eine Säule fehlt"),
+      say: tt("Now take away relevance. The customer trusts and likes the people but gains nothing beyond the service. A rival with better advice has an opening.", "Jetzt fehlt die Relevanz. Der Kunde vertraut den Menschen und mag sie, gewinnt aber nichts über den Service hinaus. Ein Konkurrent mit besserem Rat hat eine Chance."),
+      look: tt("the dashed pillar “Relevance”", "die gestrichelte Säule „Relevanz“"),
+      apply: () => {
+        setOn(["trust", "appreciation"]);
+        setFocus("relevance");
+      },
+    },
+    {
+      title: tt("The point", "Das Wichtigste"),
+      say: tt("Each pillar needs its own action: a person for trust, time and attention for appreciation, advice for relevance. A gift is not advice. Switch the pillars yourself.", "Jede Säule braucht ihre eigene Maßnahme: eine Person für Vertrauen, Zeit und Aufmerksamkeit für Wertschätzung, Rat für Relevanz. Ein Geschenk ist kein Rat. Schalten Sie die Säulen selbst."),
+      look: tt("the buttons under the picture", "die Schaltflächen unter dem Bild"),
+      apply: () => {
+        setOn(["trust", "appreciation", "relevance"]);
+        setFocus("appreciation");
+      },
+    },
+  ]);
   const toggle = (k: FactorKey) => {
+    story.leave();
     setFocus(k);
     setOn((c) => (c.includes(k) ? c.filter((x) => x !== k) : [...c, k]));
   };
@@ -97,6 +157,8 @@ export function ThreeFactors() {
   const f = F_TEXT[focus];
   return (
     <div className="space-y-3">
+      <ThePoint>{tt("A customer is tied to you only when three things hold: trust, appreciation and relevance. Missing any one leaves a gap a competitor can use.", "Ein Kunde ist nur gebunden, wenn drei Dinge stimmen: Vertrauen, Wertschätzung und Relevanz. Fehlt eines, bleibt eine Lücke, die ein Wettbewerber nutzen kann.")}</ThePoint>
+      <Story steps={story.plan} step={story.step} onStep={story.go} />
       <svg viewBox="0 0 560 220" className="mx-auto h-auto w-full max-w-[600px]" role="img" aria-labelledby={`${uid}-t ${uid}-d`}>
         <title id={`${uid}-t`}>{tt("Three factors hold up emotional retention", "Drei Faktoren tragen emotionale Bindung")}</title>
         <desc id={`${uid}-d`}>{tt(`${on.length} of 3 factors present: ${on.join(", ") || "none"}.`, `${on.length} von 3 Faktoren vorhanden: ${on.join(", ") || "keiner"}.`)}</desc>
@@ -106,6 +168,7 @@ export function ThreeFactors() {
           const active = on.includes(k);
           return (
             <g key={k}>
+              {story.step !== null && k === focus && <rect x={X[k] - 63} y="52" width="126" height="136" rx="6" fill="none" stroke={C.amber} strokeWidth="2.5" strokeDasharray="6 4" className="anim-pulse" />}
               <rect x={X[k] - 55} y="60" width="110" height="120" fill={active ? C.data : C.paper} stroke={active ? C.ink : C.ash} strokeWidth="1.6" strokeDasharray={active ? undefined : "6 4"} />
               <text x={X[k]} y="126" textAnchor="middle" fontSize="14" fontWeight="700" fill={active ? C.paper : C.ash}>{F_TEXT[k].name}</text>
               <text x={X[k]} y="200" textAnchor="middle" fontSize="12" fontWeight="600" fill={active ? C.teal : C.ash}>{active ? tt("● present", "● vorhanden") : tt("○ missing", "○ fehlt")}</text>
@@ -117,7 +180,10 @@ export function ThreeFactors() {
         <p className="smallcaps">{tt("Switch a factor on or off", "Einen Faktor ein- oder ausschalten")}</p>
         <Toggles multi label={tt("Factors", "Faktoren")} value={on} onChange={toggle} options={(Object.keys(X) as FactorKey[]).map((k) => ({ id: k, label: `${F_TEXT[k].name}${on.includes(k) ? tt(" · on", " · an") : tt(" · off", " · aus")}` }))} />
       </div>
-      <Insight>{F_READING[key]}</Insight>
+      <Insight>
+        {plain()}
+        {F_READING[key]}
+      </Insight>
       <div className="rounded-lg border border-line bg-paper p-3.5 text-caption">
         <p className="smallcaps">{f.name}</p>
         <p className="mt-1 text-ink">
@@ -148,16 +214,44 @@ export function AreaSortExample() {
   const [sel, setSel] = useState("k1");
   const [seen, setSeen] = useState<string[]>(["k1"]);
   const r = K_REASONS.find((x) => x.id === sel)!;
-  const pick = (id: string) => {
+  const open = (id: string) => {
     setSel(id);
     setSeen((s) => (s.includes(id) ? s : [...s, id]));
   };
+  const story = useStory([
+    {
+      title: tt("A contact who keeps changing", "Ein Ansprechpartner, der ständig wechselt"),
+      say: tt("Meet Kontor, an example company, not your case. A customer says its contact changed three times. What would fix it? A person who stays. So it is a relationship gap.", "Das ist Kontor, ein Beispielunternehmen, nicht Ihr Fall. Ein Kunde sagt, sein Ansprechpartner wechselte dreimal. Was würde es beheben? Eine Person, die bleibt. Also eine Beziehungslücke."),
+      look: tt("the first statement and its area", "die erste Aussage und ihren Bereich"),
+      apply: () => open("k1"),
+    },
+    {
+      title: tt("It sounds the same, and is not", "Es klingt gleich und ist es nicht"),
+      say: tt("Another customer says Kontor only calls about upgrades. It sounds like a people problem, but a person would not fix it. Better messages at the right time would: communication.", "Ein anderer Kunde sagt, Kontor rufe nur wegen Upgrades an. Es klingt nach einem Personenproblem, aber eine Person würde es nicht beheben. Bessere Nachrichten zur richtigen Zeit schon: Kommunikation."),
+      look: tt("the second statement and its area", "die zweite Aussage und ihren Bereich"),
+      apply: () => open("k2"),
+    },
+    {
+      title: tt("The point", "Das Wichtigste"),
+      say: tt("Sort by what would fix it, not by the words used. Something useful beyond the contract is added value, like this one. Open the other statements yourself.", "Sortieren Sie danach, was es beheben würde, nicht nach den Worten. Etwas Nützliches über den Vertrag hinaus ist Mehrwert, wie hier. Öffnen Sie die anderen Aussagen selbst."),
+      look: tt("the fourth statement and its area", "die vierte Aussage und ihren Bereich"),
+      apply: () => open("k4"),
+    },
+  ]);
+  const pick = (id: string) => {
+    story.leave();
+    open(id);
+  };
   return (
     <Diagram label={tt("Worked example · six things Kontor's customers said (Case assumption, read-only)", "Durchgerechnetes Beispiel · sechs Aussagen von Kontors Kunden (Fallannahme, nur lesen)")}>
+      <div className="mb-3 space-y-3">
+        <ThePoint>{tt("Sort a reason by what would fix it: a person who stays (relationship), the right message at the right time (communication), or something useful beyond the contract (added value).", "Sortieren Sie einen Grund danach, was ihn beheben würde: eine Person, die bleibt (Beziehung), die richtige Nachricht zur richtigen Zeit (Kommunikation) oder etwas Nützliches über den Vertrag hinaus (Mehrwert).")}</ThePoint>
+        <Story steps={story.plan} step={story.step} onStep={story.go} />
+      </div>
       <ol className="grid gap-2 sm:grid-cols-2">
         {K_REASONS.map((h) => (
           <li key={h.id}>
-            <button type="button" onClick={() => pick(h.id)} aria-pressed={h.id === sel} className={clsx("flex min-h-[48px] w-full flex-col items-start gap-1 rounded-lg border bg-paper px-3 py-2 text-left text-caption transition-colors", h.id === sel ? "border-accent bg-accentSoft ring-2 ring-gold" : "border-line hover:border-ash")}>
+            <button type="button" onClick={() => pick(h.id)} aria-pressed={h.id === sel} className={clsx("flex min-h-[48px] w-full flex-col items-start gap-1 rounded-lg border bg-paper px-3 py-2 text-left text-caption transition-colors", h.id === sel ? "border-accent bg-accentSoft ring-2 ring-gold" : "border-line hover:border-ash", h.id === sel && story.step !== null && "anim-pulse")}>
               <span className="text-ink">{h.quote}</span>
               {seen.includes(h.id) && <span className={clsx("pill", TAG_STYLE[h.tag])}>{AREA_LABEL[h.tag]}</span>}
             </button>
@@ -175,6 +269,7 @@ export function AreaSortExample() {
         </p>
       </div>
       <Insight className="mt-3">
+        {plain()}
         {tt(
           `Two statements each. The pair that needs a second look is the contact who changed three times and the calls only about upgrades: a contact who changes is a relationship problem; a contact who only calls to sell is a communication problem. Ask: would a better message fix it, or does it need a person? You have opened ${seen.length} of 6.`,
           `Je zwei Aussagen. Das Paar, das einen zweiten Blick braucht, sind der dreimal wechselnde Ansprechpartner und die Anrufe nur wegen Upgrades: Ein wechselnder Ansprechpartner ist ein Beziehungsproblem; einer, der nur zum Verkaufen anruft, ein Kommunikationsproblem. Fragen Sie: Würde eine bessere Nachricht es lösen, oder braucht es eine Person? Sie haben ${seen.length} von 6 geöffnet.`,
@@ -188,7 +283,32 @@ export function AreaSortExample() {
 
 export function DelightValue() {
   const uid = useId().replace(/:/g, "");
-  const [moved, setMoved] = useState(KONTOR.moved);
+  const [moved, setMovedRaw] = useState(KONTOR.moved);
+  const keptFor = (m: number) => keptProfit(m, KONTOR.satisfied.churn, KONTOR.delighted.churn, KONTOR.contract, KONTOR.margin);
+  const story = useStory([
+    {
+      title: tt("Where the money leaks", "Wo das Geld abfließt"),
+      say: tt(`Meet Kontor, an example company, not your case. Its ${KONTOR.satisfied.customers} satisfied customers leave at ${KONTOR.satisfied.churn}% a year and take ${euro(lostProfit(KONTOR.satisfied, KONTOR.contract, KONTOR.margin))} of gross profit with them. Moving 30 of them to delighted keeps ${euro(keptFor(30))} a year.`, `Das ist Kontor, ein Beispielunternehmen, nicht Ihr Fall. Seine ${KONTOR.satisfied.customers} zufriedenen Kunden gehen mit ${KONTOR.satisfied.churn} % pro Jahr und nehmen ${euro(lostProfit(KONTOR.satisfied, KONTOR.contract, KONTOR.margin))} Rohertrag mit. 30 davon zu begeisterten zu machen, hält ${euro(keptFor(30))} pro Jahr.`),
+      look: tt("the grey bar, and the teal bar of what is kept", "den grauen Balken und den türkisen Balken des Gehaltenen"),
+      apply: () => setMovedRaw(30),
+    },
+    {
+      title: tt("A few moves keep little", "Wenige Verschiebungen halten wenig"),
+      say: tt(`Move only 5 customers and Kontor keeps ${euro(keptFor(5))}: each move is worth only the churn gap of ${KONTOR.satisfied.churn - KONTOR.delighted.churn} points.`, `Verschiebt Kontor nur 5 Kunden, hält es ${euro(keptFor(5))}: Jede Verschiebung ist nur die Churn-Lücke von ${KONTOR.satisfied.churn - KONTOR.delighted.churn} Punkten wert.`),
+      look: tt("the teal bar getting short", "den kürzer werdenden türkisen Balken"),
+      apply: () => setMovedRaw(5),
+    },
+    {
+      title: tt("The point", "Das Wichtigste"),
+      say: tt("The money is in the churn gap times the number of customers moved, not in the satisfaction score. Block 1.2 asks you to work this out for NetSolutions. Try the buttons.", "Das Geld steckt in der Churn-Lücke mal der Zahl verschobener Kunden, nicht im Zufriedenheitswert. Block 1.2 bittet Sie, das für NetSolutions auszurechnen. Probieren Sie die Schaltflächen."),
+      look: tt("the buttons under the picture", "die Schaltflächen unter dem Bild"),
+      apply: () => setMovedRaw(KONTOR.moved),
+    },
+  ]);
+  const setMoved = (v: number) => {
+    story.leave();
+    setMovedRaw(v);
+  };
   const lostSat = lostProfit(KONTOR.satisfied, KONTOR.contract, KONTOR.margin);
   const lostDel = lostProfit(KONTOR.delighted, KONTOR.contract, KONTOR.margin);
   const kept = keptProfit(moved, KONTOR.satisfied.churn, KONTOR.delighted.churn, KONTOR.contract, KONTOR.margin);
@@ -201,6 +321,8 @@ export function DelightValue() {
   ];
   return (
     <div className="space-y-3">
+      <ThePoint>{tt("Delight is worth money: satisfied customers leave far more often than delighted ones, and every one who leaves takes its gross profit.", "Begeisterung ist Geld wert: Zufriedene Kunden gehen viel öfter als begeisterte, und jeder, der geht, nimmt seinen Rohertrag mit.")}</ThePoint>
+      <Story steps={story.plan} step={story.step} onStep={story.go} />
       <svg viewBox="0 0 560 150" className="mx-auto h-auto w-full max-w-[600px]" role="img" aria-labelledby={`${uid}-t ${uid}-d`}>
         <title id={`${uid}-t`}>{tt("Gross profit lost per year by group, and kept by moving customers", "Rohertrag, der pro Jahr je Gruppe verloren geht, und der durch Verschieben gehalten wird")}</title>
         <desc id={`${uid}-d`}>{rows.map((r) => `${r.label}: ${euro(r.v)}`).join(". ")}</desc>
@@ -208,6 +330,7 @@ export function DelightValue() {
           <g key={i}>
             <text x="4" y={30 + i * 44} fontSize="12.5" fontWeight="700" fill={C.ink}>{r.label}</text>
             <rect x="180" y={14 + i * 44} width={Math.max(W(r.v), 1)} height="26" fill={r.fill} stroke={C.ink} className="anim-grow-x" />
+            {story.step !== null && i === 2 && <rect x="176" y={10 + i * 44} width={Math.max(W(r.v), 1) + 8} height="34" rx="4" fill="none" stroke={C.amber} strokeWidth="2.5" strokeDasharray="5 4" className="anim-pulse" />}
             <text x={186 + W(r.v)} y={32 + i * 44} fontSize="12.5" fontWeight="700" fill={C.ink}>{euro(r.v)}</text>
           </g>
         ))}
@@ -217,6 +340,7 @@ export function DelightValue() {
         <Toggles<string> label={tt("Customers moved", "Verschobene Kunden")} value={String(moved)} onChange={(v) => setMoved(Number(v))} options={[5, 10, 20, 30].map((v) => ({ id: String(v), label: String(v) }))} />
       </div>
       <Insight>
+        {plain()}
         {tt(
           `Kontor's ${KONTOR.satisfied.customers} satisfied customers leave at ${KONTOR.satisfied.churn}% a year and cost ${euro(lostSat)} of gross profit; its ${KONTOR.delighted.customers} delighted ones leave at ${KONTOR.delighted.churn}% and cost only ${euro(lostDel)}. Moving ${moved} customers from satisfied to delighted keeps ${moved} × ${KONTOR.satisfied.churn - KONTOR.delighted.churn} points × ${euro(KONTOR.contract)} × ${KONTOR.margin}% = ${euro(kept)} a year. The difference in churn, not the satisfaction score, is where the money is.`,
           `Kontors ${KONTOR.satisfied.customers} zufriedene Kunden gehen mit ${KONTOR.satisfied.churn} % pro Jahr und kosten ${euro(lostSat)} Rohertrag; seine ${KONTOR.delighted.customers} begeisterten gehen mit ${KONTOR.delighted.churn} % und kosten nur ${euro(lostDel)}. ${moved} Kunden von zufrieden zu begeistert zu bringen, hält ${moved} × ${KONTOR.satisfied.churn - KONTOR.delighted.churn} Punkte × ${euro(KONTOR.contract)} × ${KONTOR.margin} % = ${euro(kept)} pro Jahr. Der Unterschied im Churn, nicht der Zufriedenheitswert, ist dort, wo das Geld liegt.`,
@@ -253,16 +377,44 @@ export function SignalExample() {
   const [sel, setSel] = useState("y1");
   const [seen, setSeen] = useState<string[]>(["y1"]);
   const w = K_OBS.find((x) => x.id === sel)!;
-  const pick = (id: string) => {
+  const open = (id: string) => {
     setSel(id);
     setSeen((s) => (s.includes(id) ? s : [...s, id]));
   };
+  const story = useStory([
+    {
+      title: tt("A buyer close to signing", "Ein Käufer kurz vor der Unterschrift"),
+      say: tt("Meet Kontor, an example company, not your case. A buyer asks: “If we sign in March, can you start in April?” The words “if we sign” decide it: decision proximity.", "Das ist Kontor, ein Beispielunternehmen, nicht Ihr Fall. Ein Käufer fragt: „Wenn wir im März unterschreiben, können Sie im April starten?“ Die Worte „wenn wir unterschreiben“ entscheiden: Entscheidungsnähe."),
+      look: tt("the marked words in the box below", "die markierten Worte im Feld unten"),
+      apply: () => open("y3"),
+    },
+    {
+      title: tt("Close-sounding, and moving away", "Klingt nah und entfernt sich"),
+      say: tt("Another asks: “Can we cancel without cost if our board changes its mind?” It sounds close to signing, but it asks for a way out: uncertainty.", "Ein anderer fragt: „Können wir kostenlos kündigen, wenn unser Vorstand es sich anders überlegt?“ Es klingt nah an der Unterschrift, fragt aber nach einem Ausweg: Unsicherheit."),
+      look: tt("“cancel without cost” marked below", "„kostenlos kündigen“ unten markiert"),
+      apply: () => open("y4"),
+    },
+    {
+      title: tt("The point", "Das Wichtigste"),
+      say: tt("Find the one phrase, then ask: towards the decision, or away from it? A friendly “later” with no reason is uncertainty too. Open the other observations yourself.", "Finden Sie die eine Wendung und fragen Sie dann: zur Entscheidung hin oder weg davon? Ein freundliches „später“ ohne Grund ist auch Unsicherheit. Öffnen Sie die anderen Beobachtungen selbst."),
+      look: tt("the “after the summer” observation", "die Beobachtung „nach dem Sommer“"),
+      apply: () => open("y6"),
+    },
+  ]);
+  const pick = (id: string) => {
+    story.leave();
+    open(id);
+  };
   return (
     <Diagram label={tt("Worked example · six observations from Kontor's deals (Case assumption, read-only)", "Durchgerechnetes Beispiel · sechs Beobachtungen aus Kontors Deals (Fallannahme, nur lesen)")}>
+      <div className="mb-3 space-y-3">
+        <ThePoint>{tt("One phrase decides a signal. A question about cancelling, or a friendly “later”, is uncertainty however positive it sounds.", "Eine Wendung entscheidet ein Signal. Eine Frage nach Kündigung oder ein freundliches „später“ ist Unsicherheit, so positiv es auch klingt.")}</ThePoint>
+        <Story steps={story.plan} step={story.step} onStep={story.go} />
+      </div>
       <ol className="grid gap-2 sm:grid-cols-2">
         {K_OBS.map((n) => (
           <li key={n.id}>
-            <button type="button" onClick={() => pick(n.id)} aria-pressed={n.id === sel} className={clsx("flex min-h-[48px] w-full flex-col items-start gap-1 rounded-lg border bg-paper px-3 py-2 text-left text-caption transition-colors", n.id === sel ? "border-accent bg-accentSoft ring-2 ring-gold" : "border-line hover:border-ash")}>
+            <button type="button" onClick={() => pick(n.id)} aria-pressed={n.id === sel} className={clsx("flex min-h-[48px] w-full flex-col items-start gap-1 rounded-lg border bg-paper px-3 py-2 text-left text-caption transition-colors", n.id === sel ? "border-accent bg-accentSoft ring-2 ring-gold" : "border-line hover:border-ash", n.id === sel && story.step !== null && "anim-pulse")}>
               <span className="text-ink">{n.text}</span>
               {seen.includes(n.id) && <span className="pill border-signal/50 bg-signalSoft text-signal">{SIGNALS[n.sig].label}</span>}
             </button>
@@ -288,6 +440,7 @@ export function SignalExample() {
         </p>
       </div>
       <Insight className="mt-3">
+        {plain()}
         {tt(
           `Each observation is settled by one phrase. The trap is the question about cancelling and the “after the summer”: both sound close to a decision, and both move away from it. A question about cancelling or a “later” with no reason is uncertainty, however friendly. You have opened ${seen.length} of 6.`,
           `Jede Beobachtung wird von einer Wendung entschieden. Die Falle sind die Frage nach der Kündigung und das „nach dem Sommer“: Beide klingen nah an einer Entscheidung, und beide entfernen sich davon. Eine Frage nach Kündigung oder ein „später“ ohne Grund ist Unsicherheit, egal wie freundlich. Sie haben ${seen.length} von 6 geöffnet.`,
@@ -310,13 +463,52 @@ const OUTCOME = bi({
 });
 
 export function ReadAndRespond() {
-  const [actual, setActual] = useState<SignalType>("uncertainty");
-  const [read, setRead] = useState<SignalType>("interest");
+  const [actual, setActualRaw] = useState<SignalType>("uncertainty");
+  const [read, setReadRaw] = useState<SignalType>("interest");
+  const story = useStory([
+    {
+      title: tt("Read right", "Richtig gelesen"),
+      say: tt("Meet Kontor, an example company, not your case. A hesitating buyer asks what happens if it fails. Sales reads it as uncertainty, names the worry and offers a pilot. The buyer feels heard and goes on.", "Das ist Kontor, ein Beispielunternehmen, nicht Ihr Fall. Ein zögernder Käufer fragt, was passiert, wenn es scheitert. Der Vertrieb liest Unsicherheit, spricht die Sorge an und bietet einen Pilot. Der Käufer fühlt sich gehört und macht weiter."),
+      look: tt("the teal box: the response sent matches the one needed", "das türkise Feld: gesendete und nötige Antwort passen"),
+      apply: () => {
+        setActualRaw("uncertainty");
+        setReadRaw("uncertainty");
+      },
+    },
+    {
+      title: tt("Read wrong", "Falsch gelesen"),
+      say: tt("Same question, but sales hears interest and sends a demo. The worry stays open, the buyer feels unheard and goes quiet. Most stalls start like this.", "Dieselbe Frage, aber der Vertrieb hört Interesse und schickt eine Demo. Die Sorge bleibt offen, der Käufer fühlt sich überhört und verstummt. So beginnen die meisten Stillstände."),
+      look: tt("the dashed box: two different responses", "das gestrichelte Feld: zwei verschiedene Antworten"),
+      apply: () => {
+        setActualRaw("uncertainty");
+        setReadRaw("interest");
+      },
+    },
+    {
+      title: tt("The point", "Das Wichtigste"),
+      say: tt("Read the signal first, then answer the question the buyer actually asked. Try other pairs with the buttons.", "Lesen Sie zuerst das Signal und beantworten Sie dann die Frage, die der Käufer wirklich gestellt hat. Probieren Sie andere Paare mit den Schaltflächen."),
+      look: tt("the two rows of buttons", "die zwei Reihen Schaltflächen"),
+      apply: () => {
+        setActualRaw("proximity");
+        setReadRaw("interest");
+      },
+    },
+  ]);
+  const setActual = (v: SignalType) => {
+    story.leave();
+    setActualRaw(v);
+  };
+  const setRead = (v: SignalType) => {
+    story.leave();
+    setReadRaw(v);
+  };
   const key = actual === read ? "same" : (`${actual}-as-${read}` as keyof typeof OUTCOME);
   const outcome = OUTCOME[key] ?? OUTCOME.other;
   const fits = actual === read;
   return (
     <div className="space-y-3">
+      <ThePoint>{tt("Reading a signal wrong means answering a question the buyer did not ask. With a hesitating buyer, that is how deals stall.", "Ein Signal falsch lesen heißt, eine Frage zu beantworten, die der Käufer nicht gestellt hat. Bei einem zögernden Käufer stocken so Deals.")}</ThePoint>
+      <Story steps={story.plan} step={story.step} onStep={story.go} />
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-1.5">
           <p className="smallcaps">{tt("What the buyer is really signalling", "Was der Käufer wirklich signalisiert")}</p>
@@ -327,13 +519,16 @@ export function ReadAndRespond() {
           <Toggles<SignalType> label={tt("Signal as read", "Signal, wie gelesen")} value={read} onChange={setRead} options={SIGNAL_IDS.map((s) => ({ id: s, label: SIGNALS[s].label }))} />
         </div>
       </div>
-      <div className={clsx("rounded-lg border p-3.5 text-caption", fits ? "border-signal/40 bg-signalSoft" : "border-dashed border-ash bg-mist")} aria-live="polite">
+      <div className={clsx("rounded-lg border p-3.5 text-caption", fits ? "border-signal/40 bg-signalSoft" : "border-dashed border-ash bg-mist", story.step !== null && "anim-pulse ring-2 ring-gold")} aria-live="polite">
         <p className="smallcaps">{tt("Response sent", "Gesendete Antwort")}</p>
         <p className="mt-1 text-ink">{SIGNALS[read].response}</p>
         <p className="smallcaps mt-2">{tt("What the buyer needed", "Was der Käufer brauchte")}</p>
         <p className="mt-1 text-ink">{SIGNALS[actual].response}</p>
       </div>
-      <Insight>{outcome}</Insight>
+      <Insight>
+        {plain()}
+        {outcome}
+      </Insight>
     </div>
   );
 }
@@ -351,8 +546,55 @@ export function ScoreExample() {
   ];
   const [rows, setRows] = useState<EM[]>(start);
   const [inc, setInc] = useState<string[]>(["p", "q", "r"]);
-  const cycle = (id: string, f: "eff" | "fea") => setRows((rs) => rs.map((r) => (r.id === id ? { ...r, [f]: ((r[f] % 3) + 1) as 1 | 2 | 3 } : r)));
-  const toggle = (id: string) => setInc((c) => (c.includes(id) ? c.filter((x) => x !== id) : [...c, id]));
+  const [spot, setSpot] = useState<string | null>(null);
+  const base = start();
+  const sc = (id: string) => {
+    const r = base.find((x) => x.id === id)!;
+    return r.eff * sustainBucket(r.runsOn) * r.fea;
+  };
+  const allCost = base.reduce((s2, r) => s2 + r.cost, 0);
+  const story = useStory([
+    {
+      title: tt("A measure that lasts", "Eine Maßnahme, die bleibt"),
+      say: tt(`Meet Kontor, an example company, not your case, with ${euro(BUD_K)}. Its outage messages have a medium effect but run on a process, so they keep working: 2 × 3 × 3 = ${sc("q")}.`, `Das ist Kontor, ein Beispielunternehmen, nicht Ihr Fall, mit ${euro(BUD_K)}. Seine Störungsmeldungen wirken mittel, laufen aber auf einem Prozess und wirken daher weiter: 2 × 3 × 3 = ${sc("q")}.`),
+      look: tt("the row “Outage messages”", "die Zeile „Störungsmeldungen“"),
+      apply: () => {
+        setRows(start());
+        setInc(["p", "q", "r"]);
+        setSpot("q");
+      },
+    },
+    {
+      title: tt("Strong, and gone when one person is busy", "Stark, und weg, wenn eine Person keine Zeit hat"),
+      say: tt(`The founder's personal calls have the strongest effect, but they stop when the founder is busy: 3 × 1 × 3 = ${sc("r")}. And all three together cost ${euro(allCost)}: ${euro(allCost - BUD_K)} over.`, `Die persönlichen Anrufe des Gründers wirken am stärksten, hören aber auf, wenn der Gründer keine Zeit hat: 3 × 1 × 3 = ${sc("r")}. Und alle drei zusammen kosten ${euro(allCost)}: ${euro(allCost - BUD_K)} zu viel.`),
+      look: tt("the founder's row and the plan line under the table", "die Zeile des Gründers und die Planzeile unter der Tabelle"),
+      apply: () => {
+        setRows(start());
+        setInc(["p", "q", "r"]);
+        setSpot("r");
+      },
+    },
+    {
+      title: tt("The point", "Das Wichtigste"),
+      say: tt("Leave out the lowest score: the plan fits the budget and lasts when people change. Change the effect and feasibility scores yourself.", "Lassen Sie den niedrigsten Wert weg: Der Plan passt ins Budget und hält, wenn Menschen wechseln. Ändern Sie die Werte für Wirkung und Machbarkeit selbst."),
+      look: tt("the plan line: inside the budget", "die Planzeile: innerhalb des Budgets"),
+      apply: () => {
+        setRows(start());
+        setInc(["p", "q"]);
+        setSpot(null);
+      },
+    },
+  ]);
+  const cycle = (id: string, f: "eff" | "fea") => {
+    story.leave();
+    setSpot(null);
+    setRows((rs) => rs.map((r) => (r.id === id ? { ...r, [f]: ((r[f] % 3) + 1) as 1 | 2 | 3 } : r)));
+  };
+  const toggle = (id: string) => {
+    story.leave();
+    setSpot(null);
+    setInc((c) => (c.includes(id) ? c.filter((x) => x !== id) : [...c, id]));
+  };
   const scored = rows.map((r) => ({ ...r, sus: sustainBucket(r.runsOn), score: r.eff * sustainBucket(r.runsOn) * r.fea }));
   const chosen = scored.filter((r) => inc.includes(r.id));
   const total = chosen.reduce((s, r) => s + r.cost, 0);
@@ -360,6 +602,8 @@ export function ScoreExample() {
   const lowest = [...chosen].sort((a, b) => a.score - b.score)[0];
   return (
     <div className="space-y-3">
+      <ThePoint>{tt("A measure is worth funding when its effect, how long it lasts and how easy it is are all decent. A strong measure that rests on one person scores low, on purpose.", "Eine Maßnahme lohnt sich, wenn Wirkung, Dauer und Machbarkeit alle ordentlich sind. Eine starke Maßnahme, die an einer Person hängt, bekommt absichtlich wenig.")}</ThePoint>
+      <Story steps={story.plan} step={story.step} onStep={story.go} />
       <div className="relative overflow-x-auto rounded-lg border border-line">
         <table className="w-full min-w-[38rem] border-collapse text-caption">
           <caption className="sr-only">{tt("Three measures of Kontor scored on effect, sustainability and feasibility", "Drei Maßnahmen von Kontor, bewertet nach Wirkung, Nachhaltigkeit und Machbarkeit")}</caption>
@@ -376,7 +620,7 @@ export function ScoreExample() {
           </thead>
           <tbody>
             {scored.map((r) => (
-              <tr key={r.id} className={clsx("border-t border-line align-top", !inc.includes(r.id) && "opacity-60")}>
+              <tr key={r.id} className={clsx("border-t border-line align-top", !inc.includes(r.id) && "opacity-60", story.step !== null && spot === r.id && "bg-accentSoft outline outline-2 outline-gold")}>
                 <td className="px-3 py-2">
                   <input type="checkbox" checked={inc.includes(r.id)} onChange={() => toggle(r.id)} aria-label={tt(`Include ${r.name}`, `${r.name} aufnehmen`)} className="h-5 w-5 accent-[#8A5A0B]" />
                 </td>
@@ -407,6 +651,7 @@ export function ScoreExample() {
         {tt(`Plan ${euro(total)} of ${euro(BUD_K)}${over > 0 ? `, ${euro(over)} over` : ""}.`, `Plan ${euro(total)} von ${euro(BUD_K)}${over > 0 ? `, ${euro(over)} darüber` : ""}.`)}
       </p>
       <Insight>
+        {plain()}
         {over > 0
           ? tt(`Over budget by ${euro(over)}: leave out the lowest score, ${lowest ? `“${lowest.name}” (${lowest.score})` : "none"}. `, `${euro(over)} über dem Budget: Lassen Sie den niedrigsten Wert weg, ${lowest ? `„${lowest.name}“ (${lowest.score})` : "keinen"}. `)
           : tt("Inside the budget. ", "Innerhalb des Budgets. ")}

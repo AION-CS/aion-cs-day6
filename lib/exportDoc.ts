@@ -200,9 +200,11 @@ ${para(l1.why)}
 export function memoBody(p: Persisted): string {
   const { l1, r2 } = p;
   const name = p.participant.name.trim();
+  const t1 = tallyOf(l1.tags);
+  // Quotes only Route 1's Core answers (Block 2.1 tags, Block 2.3 measures), CLAUDE.md #40.
   const situation =
-    l1.weak.length || l1.chosen.length
-      ? `<blockquote><strong>${esc(tt("Where Route 1 left off.", "Wo Route 1 aufgehört hat."))}</strong> ${esc(tt("Weaknesses named:", "Benannte Schwächen:"))} ${esc(l1.weak.map((w) => WEAK_BY_ID[w].label).join("; ") || "—")}. ${esc(tt("Measures chosen:", "Gewählte Maßnahmen:"))} ${esc(l1.chosen.map((id) => MEASURE_BY_ID[id].name).join(", ") || "—")}.</blockquote>`
+    t1.tagged || l1.chosen.length
+      ? `<blockquote><strong>${esc(tt("Where Route 1 left off.", "Wo Route 1 aufgehört hat."))}</strong> ${esc(tt(`Uncertainty signals tagged in live deals: ${t1.count.uncertainty}, of which ${t1.stalled.uncertainty} stalled.`, `In laufenden Deals eingeordnete Unsicherheitssignale: ${t1.count.uncertainty}, davon ${t1.stalled.uncertainty} stockend.`))} ${esc(tt("Measures chosen:", "Gewählte Maßnahmen:"))} ${esc(l1.chosen.map((id) => MEASURE_BY_ID[id].name).join(", ") || "—")}.</blockquote>`
       : `<p class="muted">${esc(tt("Route 1 is not finished, so there is nothing to quote yet. Nothing is blocked.", "Route 1 ist nicht fertig, daher gibt es noch nichts zu zitieren. Nichts ist gesperrt."))}</p>`;
   const principleRows = r2.principles.map((c) => `<tr><td class="id">${esc(PRINCIPLES[c].name)}</td><td>${cell(r2.principleText[c] ?? "")}</td></tr>`).join("");
   const timeLabel = (id: string | null) => TIMES.find((x) => x.id === id)?.label ?? "—";
@@ -227,7 +229,7 @@ export function memoBody(p: Persisted): string {
   const k = r2.tripKpi ? KPI_BY_ID[r2.tripKpi] : null;
   const thr = parseAmount(r2.tripThreshold);
   const u = (x: typeof k) => (x ? (x.unit === "%" ? tt("%", " %") : ` ${x.unit}`) : "");
-  const action = { "": "—", scale: tt("scale up anyway", "trotzdem ausweiten"), adjust: tt("adjust one lever and continue", "einen Hebel anpassen und weitermachen"), stop: tt("stop the rollout and reconsider the system", "den Rollout stoppen und das System überdenken") }[r2.tripAction];
+  const action = { "": "—", scale: tt("scale up anyway", "trotzdem ausweiten"), adjust: tt("adjust one item and continue", "einen Punkt anpassen und weitermachen"), stop: tt("stop the rollout and reconsider the system", "den Rollout stoppen und das System überdenken") }[r2.tripAction];
 
   return `${header("Retention System Memo", tt("Level 3 · Management decision", "Level 3 · Managemententscheidung"), p)}
 <p class="muted">${esc(tt(`To: the board · From: ${name || "Chief Customer Officer"}, NetSolutions GmbH · Budget ${euro(R2_BUDGET)} over ${R2_MONTHS} months.`, `An: den Vorstand · Von: ${name || "Chief Customer Officer"}, NetSolutions GmbH · Budget ${euro(R2_BUDGET)} über ${R2_MONTHS} Monate.`))}</p>
@@ -235,18 +237,20 @@ export function memoBody(p: Persisted): string {
 <p>${esc(tt("Satisfied customers who are not loyal, three teams that do not share what they hear, a limited budget, high time pressure and incomplete data. The board asks for a scalable customer retention system anyway.", "Zufriedene Kunden, die nicht treu sind, drei Teams, die nicht teilen, was sie hören, ein begrenztes Budget, hoher Zeitdruck und unvollständige Daten. Der Vorstand verlangt trotzdem ein skalierbares Kundenbindungssystem."))}</p>
 ${situation}
 <h2>${esc(tt("2 · Target vision: the principles of the system", "2 · Zielbild: die Prinzipien des Systems"))}</h2>
-<table><thead><tr><th>${esc(tt("Principle", "Prinzip"))}</th><th>${esc(tt("What it means at NetSolutions", "Was es bei NetSolutions bedeutet"))}</th></tr></thead><tbody>${principleRows || `<tr><td colspan="2">—</td></tr>`}</tbody></table>
+<table><thead><tr><th>${esc(tt("Principle", "Prinzip"))}</th><th>${esc(tt("What it means at NetSolutions", "Was es bei NetSolutions bedeutet"))}</th></tr></thead><tbody>${principleRows || `<tr><td colspan="2">${esc(tt("— (optional block, not answered)", "— (optionaler Block, nicht beantwortet)"))}</td></tr>`}</tbody></table>
 <h2>${esc(tt("3 · The central process: from signal to response", "3 · Der zentrale Prozess: vom Signal zur Antwort"))}</h2>
 <table><thead><tr><th>${esc(tt("Signal type", "Signalart"))}</th><th>${esc(tt("Owner", "Owner"))}</th><th>${esc(tt("Response time", "Reaktionszeit"))}</th><th>${esc(tt("First action", "Erste Aktion"))}</th><th>${esc(tt("What happens", "Was passiert"))}</th></tr></thead><tbody>${processRows}</tbody></table>
 <h2>${esc(tt("4 · Strategic levers", "4 · Strategische Hebel"))}</h2>
-<table><thead><tr><th>${esc(tt("Lever", "Hebel"))}</th>${CRITERIA.map((c) => `<th>${esc(c.name)}</th>`).join("")}</tr></thead><tbody>${leverRows || `<tr><td colspan="5">—</td></tr>`}</tbody></table>
+<table><thead><tr><th>${esc(tt("Lever", "Hebel"))}</th>${CRITERIA.map((c) => `<th>${esc(c.name)}</th>`).join("")}</tr></thead><tbody>${leverRows || `<tr><td colspan="5">${esc(tt("— (optional block, not answered)", "— (optionaler Block, nicht beantwortet)"))}</td></tr>`}</tbody></table>
 <h3>${esc(tt("Why the greatest lever is the greatest", "Warum der größte Hebel der größte ist"))}</h3>${para(r2.greatestWhy)}
 <h2>${esc(tt("5 · Sales, service and marketing: who does what", "5 · Vertrieb, Service und Marketing: wer macht was"))}</h2>
 <table><thead><tr><th>${esc(tt("Activity", "Aktivität"))}</th>${raciHead}</tr></thead><tbody>${raciRows}</tbody></table>
 <p class="legend">${esc(tt("R = does the work · A = answers for the result and decides · C = asked before · I = told after · – = no role.", "R = macht die Arbeit · A = verantwortet das Ergebnis und entscheidet · C = vorher gefragt · I = nachher informiert · – = keine Rolle."))}</p>
 <h2>${esc(tt("6 · The implementation architecture", "6 · Die Umsetzungsarchitektur"))}</h2>
 <table><thead><tr><th>${esc(tt("Item", "Punkt"))}</th><th>${esc(tt("Status", "Status"))}</th><th class="num">${esc(tt("Cost", "Kosten"))}</th><th class="num">${esc(tt("Start", "Start"))}</th><th>${esc(tt("Owner", "Owner"))}</th><th>${esc(tt("Trigger", "Trigger"))}</th></tr></thead><tbody>${archRows}</tbody></table>
-<p class="legend">${esc(tt(`Funded ${euro(archCost(r2))} of ${euro(R2_BUDGET)} (${euro(archLeft(r2))} left) across ${fundedIds.length} item${fundedIds.length === 1 ? "" : "s"}.`, `Finanziert ${euro(archCost(r2))} von ${euro(R2_BUDGET)} (${euro(archLeft(r2))} übrig) über ${fundedIds.length} ${fundedIds.length === 1 ? "Punkt" : "Punkte"}.`))}</p>
+<p class="legend">${esc(archLeft(r2) >= 0
+      ? tt(`Funded ${euro(archCost(r2))} of ${euro(R2_BUDGET)} (${euro(archLeft(r2))} left) across ${fundedIds.length} item${fundedIds.length === 1 ? "" : "s"}.`, `Finanziert ${euro(archCost(r2))} von ${euro(R2_BUDGET)} (${euro(archLeft(r2))} übrig) über ${fundedIds.length} ${fundedIds.length === 1 ? "Punkt" : "Punkte"}.`)
+      : tt(`Funded ${euro(archCost(r2))} against ${euro(R2_BUDGET)}: ${euro(-archLeft(r2))} over the budget, across ${fundedIds.length} items. The reasons are in the triggers and the text below.`, `Finanziert ${euro(archCost(r2))} gegen ${euro(R2_BUDGET)}: ${euro(-archLeft(r2))} über dem Budget, über ${fundedIds.length} Punkte. Die Gründe stehen in den Triggern und im Text unten.`))}</p>
 ${ARCH_IDS.every((id) => r2.alloc[id]) ? "" : `<h3>${esc(tt("Left out, and when we look again", "Weggelassen, und wann wir es wieder ansehen"))}</h3>${para(r2.postponed)}<p><strong>${esc(tt("Pickup point:", "Pickup Point:"))}</strong> ${cell(r2.pickup)}</p>`}
 <h2>${esc(tt("7 · The decision", "7 · Die Entscheidung"))}</h2>
 <p><strong>${d ? esc(d.label) : "—"}</strong>${d ? ` — ${esc(d.detail)}` : ""}</p>

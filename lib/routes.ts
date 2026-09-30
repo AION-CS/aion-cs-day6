@@ -47,11 +47,11 @@ export const ROUTES: RouteInfo[] = bi([
     title: t("Route 2 · Management decision", "Route 2 · Managemententscheidung"),
     level: t("Level 3 · Management decision", "Level 3 · Managemententscheidung"),
     blurb: t(
-      "You are now NetSolutions' Chief Customer Officer. Retention is not managed as a system, sales works reactively and the data is incomplete. You set the target vision, define how signals are handled, choose three strategic levers, decide who does what across sales, service and marketing, and commit to a staged plan before you have all the information. Material first, then a Retention System Memo that assembles itself beside your answers.",
-      "Sie sind jetzt Chief Customer Officer von NetSolutions. Kundenbindung wird nicht als System gesteuert, der Vertrieb arbeitet reaktiv, und die Daten sind unvollständig. Sie legen das Zielbild fest, definieren den Umgang mit Signalen, wählen drei strategische Hebel, entscheiden, wer was über Vertrieb, Service und Marketing hinweg tut, und legen sich auf einen gestuften Plan fest, bevor Sie alle Informationen haben. Erst das Material, dann ein Retention System Memo, das sich neben Ihren Antworten selbst zusammensetzt.",
+      "You are now NetSolutions' Chief Customer Officer. Retention is not managed as a system, sales works reactively and the data is incomplete. You set the target vision, define how signals are handled, choose three strategic levers, decide who does what across sales, service and marketing, and commit to a staged plan before you have all the information. Material first, then a Retention System Memo that assembles itself from your answers, below the last question.",
+      "Sie sind jetzt Chief Customer Officer von NetSolutions. Kundenbindung wird nicht als System gesteuert, der Vertrieb arbeitet reaktiv, und die Daten sind unvollständig. Sie legen das Zielbild fest, definieren den Umgang mit Signalen, wählen drei strategische Hebel, entscheiden, wer was über Vertrieb, Service und Marketing hinweg tut, und legen sich auf einen gestuften Plan fest, bevor Sie alle Informationen haben. Erst das Material, dann ein Retention System Memo, das sich unter der letzten Frage aus Ihren Antworten zusammensetzt.",
     ),
     plan: [
-      { label: t("Materi B · five cards, Level 3", "Materi B · fünf Karten, Level 3"), minutes: 60 },
+      { label: t("Materi B · six cards, Level 3", "Materi B · sechs Karten, Level 3"), minutes: 60 },
       { label: t("Task 2 · Retention System Memo", "Task 2 · Retention System Memo"), minutes: TASK2_MINUTES },
     ],
     built: true,

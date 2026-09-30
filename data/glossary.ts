@@ -483,8 +483,8 @@ export const GLOSSARY: GlossEntry[] = [
     title: "Tripwire",
     match: ["tripwire"],
     plain: "A result agreed in advance that makes you change course: a metric, a threshold, a date and an action.",
-    example: "If fewer than 33% of customers rate 5 of 5 by month 5, one lever is adjusted.",
-    de: { title: "Tripwire", match: ["Tripwire", "Tripwires"], plain: "Ein vorab vereinbartes Ergebnis, bei dem Sie den Kurs ändern: eine Kennzahl, ein Schwellenwert, ein Datum und eine Aktion.", example: "Bewerten bis Monat 5 weniger als 33 % der Kunden mit 5 von 5, wird ein Hebel angepasst." },
+    example: "At Elbe, an example company: if fewer than 73 customers rate 5 of 5 by month 6 (today 55), one item of the plan is adjusted.",
+    de: { title: "Tripwire", match: ["Tripwire", "Tripwires"], plain: "Ein vorab vereinbartes Ergebnis, bei dem Sie den Kurs ändern: eine Kennzahl, ein Schwellenwert, ein Datum und eine Aktion.", example: "Bei Elbe, einem Beispielunternehmen: Bewerten bis Monat 6 weniger als 73 Kunden mit 5 von 5 (heute 55), wird ein Punkt des Plans angepasst." },
   },
   {
     id: "staged",
@@ -536,6 +536,44 @@ export const GLOSSARY: GlossEntry[] = [
     plain: "Before a plan starts, imagine it has failed and write down why. It brings hidden assumptions into the open.",
     from: "Klein 2007",
     de: { title: "Premortem", match: ["Premortem"], plain: "Bevor ein Plan startet, stellt man sich vor, er sei gescheitert, und schreibt auf, warum. So kommen versteckte Annahmen ans Licht." },
+  },
+
+  // --- the methods for numbers (Materi B6) -----------------------------------------
+  {
+    id: "payback",
+    title: "Payback count",
+    match: ["payback count", "payback", "pays back", "pay back", "paid for itself", "pays for itself"],
+    plain: "How many results an item must bring before it has earned back what it cost: the cost divided by what one result is worth, rounded up. It turns “we hope it works” into a number you can check.",
+    example: "An item costs €18,000 and each customer it wins is worth €2,520: 18,000 ÷ 2,520 = 7.1, so it needs 8 customers.",
+    from: "Materi B6",
+    de: { title: "Payback-Zähler", match: ["Payback-Zähler", "Payback", "rechnet sich", "rechnen sich", "bezahlt gemacht"], plain: "Wie viele Ergebnisse ein Punkt bringen muss, bis er seine Kosten wieder eingespielt hat: die Kosten geteilt durch den Wert eines Ergebnisses, aufgerundet. So wird aus „wir hoffen, es wirkt“ eine prüfbare Zahl.", example: "Ein Punkt kostet 18.000 €, jeder gewonnene Kunde ist 2.520 € wert: 18.000 ÷ 2.520 = 7,1, also braucht er 8 Kunden." },
+  },
+  {
+    id: "coverage",
+    title: "Coverage share",
+    match: ["coverage share", "coverage"],
+    plain: "The share of customers a step must reach so that the next step can work: the customers the next step needs divided by all customers. It is rarely 100%.",
+    example: "If the next step only serves the 150 customers with an open deal out of 200, the record needs 150 ÷ 200 = 75% first.",
+    from: "Materi B6",
+    de: { title: "Abdeckungsanteil", match: ["Abdeckungsanteil", "Abdeckung"], plain: "Der Anteil der Kunden, den ein Schritt erreichen muss, damit der nächste Schritt wirken kann: die Kunden, die der nächste Schritt braucht, geteilt durch alle Kunden. Selten 100 %.", example: "Bedient der nächste Schritt nur die 150 Kunden mit offenem Deal von 200, braucht der Datensatz zuerst 150 ÷ 200 = 75 %." },
+  },
+  {
+    id: "waiting",
+    title: "Cost of waiting",
+    match: ["cost of waiting", "costs of waiting"],
+    plain: "What it costs not to do something. For an item you leave out: after how many lost customers the gross profit they took equals the item's cost. That count is the point to look again.",
+    example: "An item costs €36,000; each customer who leaves takes €10,500 a year: after 4 such losses, waiting has cost more than the item.",
+    from: "Materi B6",
+    de: { title: "Kosten des Wartens", match: ["Kosten des Wartens"], plain: "Was es kostet, etwas nicht zu tun. Für einen weggelassenen Punkt: nach wie vielen verlorenen Kunden deren mitgenommener Rohertrag die Kosten des Punkts erreicht. Diese Zahl ist der Zeitpunkt, es wieder anzusehen.", example: "Ein Punkt kostet 36.000 €; jeder Kunde, der geht, nimmt 10.500 € pro Jahr mit: Nach 4 solchen Verlusten hat Warten mehr gekostet als der Punkt." },
+  },
+  {
+    id: "confidence",
+    title: "Data confidence",
+    match: ["data confidence", "data-confidence"],
+    plain: "How far you can trust what the data says about a group: how many answered, who filled a field in, how many cases a figure rests on. Low confidence is where your assumptions sit.",
+    example: "A churn of 5% that rests on 2 customers a year is low confidence: one more leaver changes it a lot.",
+    from: "Materi B5",
+    de: { title: "Datenvertrauen", match: ["Datenvertrauen", "Datenvertrauens"], plain: "Wie weit Sie dem trauen können, was die Daten über eine Gruppe sagen: wie viele geantwortet haben, wer ein Feld ausgefüllt hat, auf wie vielen Fällen eine Zahl beruht. Wo das Vertrauen niedrig ist, sitzen Ihre Annahmen.", example: "Ein Churn von 5 %, der auf 2 Kunden pro Jahr beruht, hat niedriges Vertrauen: Ein Abgang mehr ändert ihn stark." },
   },
 
 ];

@@ -10,7 +10,10 @@ import { MentorGuide } from "@/components/ui/MentorGuide";
 import { PlacementBoard } from "@/components/ui/PlacementBoard";
 import { RevealHint } from "@/components/ui/RevealHint";
 import { WritingHelp } from "@/components/ui/WritingHelp";
-import { OBSERVATIONS, OUTCOME_LABEL, RESPONSES, SIGNALS, SIGNAL_IDS, SIGNAL_PAIR_TESTS, TEAMS, TEAM_IDS, WEAKNESSES } from "@/data/signals";
+import { OBSERVATIONS, OBS_KEY, OUTCOME_LABEL, RESPONSES, SIGNALS, SIGNAL_IDS, SIGNAL_PAIR_TESTS, TEAMS, TEAM_IDS, WEAKNESSES } from "@/data/signals";
+import { ExampleAnswer } from "@/components/ui/ExampleAnswer";
+import { BlockMissing } from "@/components/ui/BlockMissing";
+import { REASONS } from "@/data/reasons";
 import type { ObsId, ResponseId, SignalType, TeamId, WeakId } from "@/data/signals";
 import { FACTORS, FACTOR_LABEL } from "@/data/approaches";
 import type { Factor } from "@/data/approaches";
@@ -41,6 +44,7 @@ export function Block21() {
       id="block-2-1"
       title={tt("Block 2.1 · Tag the twelve observations with a signal type", "Block 2.1 · Die zwölf Beobachtungen einer Signalart zuordnen")}
       kind="OBJECTIVE"
+      core
       minutes={BLOCK_MINUTES["2.1"]}
       findIt={tt("Route 1 → Task 1 → the twelve observations on the board below, from NetSolutions' current deals. Find the phrase that decides each one and answer on the board.", "Route 1 → Task 1 → die zwölf Beobachtungen auf der Tafel unten, aus laufenden Deals von NetSolutions. Finden Sie die Wendung, die jede entscheidet, und antworten Sie auf der Tafel.")}
     >
@@ -56,6 +60,7 @@ export function Block21() {
         undoCount={l1.tagHistory.length}
         redoCount={l1.tagFuture.length}
         domId={IDS.obs}
+        keyPhrases={OBS_KEY}
         clues={Object.fromEntries(OBSERVATIONS.map((o) => [o.id, o.clue]))}
         reasons={Object.fromEntries(OBSERVATIONS.map((o) => [o.id, o.why]))}
         result={l1.tagResult}
@@ -94,6 +99,7 @@ export function Block21() {
         }
       />
       <AnswerKey block={tagKey()} />
+      <BlockMissing block="2.1" route={1} />
     </AnswerBlock>
   );
 }
@@ -114,6 +120,7 @@ export function Block22() {
       id="block-2-2"
       title={tt("Block 2.2 · Weaknesses and a simple response system", "Block 2.2 · Schwächen und ein einfaches Antwortsystem")}
       kind="OBJECTIVE + JUDGED"
+      core={false}
       minutes={BLOCK_MINUTES["2.2"]}
       findIt={tt("Route 1 → Task 1 → “Your tally” below (from your own tags in Block 2.1), the statements in Block 1.1 and the responses in Materi A6. Answer in the fields below.", "Route 1 → Task 1 → „Ihre Auszählung“ unten (aus Ihren eigenen Zuordnungen in Block 2.1), die Aussagen in Block 1.1 und die Antworten in Materi A6. Antworten Sie in den Feldern unten.")}
     >
@@ -217,9 +224,25 @@ export function Block22() {
           onChange={(v) => patch({ misread: v })}
           min={MIN_LINE}
           rows={3}
-        />
+        >
+          <WritingHelp
+            id="misread-kit"
+            refs={[
+              { label: tt("Your tally: uncertainty signals, stalled", "Ihre Auszählung: Unsicherheitssignale, stockend"), value: `${tally.count.uncertainty} · ${tally.stalled.uncertainty}`, target: "tally-panel" },
+              { label: tt("The pair tests (Materi A5)", "Die Paartests (Materi A5)"), value: SIGNAL_PAIR_TESTS.map((x) => x.pair).join(" "), target: "mat-A5" },
+              { label: tt("Reading a signal right or wrong (Materi A6)", "Ein Signal richtig oder falsch lesen (Materi A6)"), value: tt("the response sent against the one needed", "die gesendete gegen die nötige Antwort"), target: "mat-A6" },
+            ]}
+            steps={[
+              tt("Name one signal type and the one it could be mistaken for.", "Nennen Sie eine Signalart und die, mit der sie verwechselt werden könnte."),
+              tt("Say what would go wrong (a stall, a lost deal, a discount given away).", "Sagen Sie, was schiefginge (ein Stillstand, ein verlorener Deal, ein verschenkter Rabatt)."),
+              tt("Name the sign you would see in the deal.", "Nennen Sie das Anzeichen, das Sie im Deal sehen würden."),
+            ]}
+          />
+        </TextBox>
+        <ExampleAnswer id="misread-example" guide={misreadGuide()} />
         {mentor && <MentorGuide guide={misreadGuide()} />}
       </div>
+      <BlockMissing block="2.2" route={1} />
     </AnswerBlock>
   );
 }
@@ -266,10 +289,11 @@ export function Block23() {
       id="block-2-3"
       title={tt("Block 2.3 · Choose three measures, score them, put them in order", "Block 2.3 · Drei Maßnahmen wählen, bewerten, in eine Reihenfolge bringen")}
       kind="OBJECTIVE + JUDGED"
+      core
       minutes={BLOCK_MINUTES["2.3"]}
       findIt={tt(`Route 1 → Task 1 → “The limits” in the case above (${euro(BUDGET)}, ${MONTHS} months) and the nine measures below. Answer by choosing three and filling their cards.`, `Route 1 → Task 1 → „Die Grenzen“ im Fall oben (${euro(BUDGET)}, ${MONTHS} Monate) und die neun Maßnahmen unten. Antworten Sie, indem Sie drei wählen und ihre Karten ausfüllen.`)}
     >
-      <MaterialRefs refs={["A7"]} />
+      <MaterialRefs refs={["A7", "A2"]} />
       <div id={IDS.measurePick} className="space-y-2">
         <p className="text-body text-ink">
           <Gloss>{tt("Choose exactly three of the nine measures. Each says what it does, what it changes for the customer and what it runs on; it does not say which factor it builds. That is your job.", "Wählen Sie genau drei der neun Maßnahmen. Jede sagt, was sie tut, was sie für den Kunden ändert und worauf sie läuft; sie sagt nicht, welchen Faktor sie aufbaut. Das ist Ihre Aufgabe.")}</Gloss>
@@ -307,7 +331,7 @@ export function Block23() {
           <BudgetBar items={chosen.map((id) => ({ id, short: MEASURE_BY_ID[id].name.split(" ")[0], cost: MEASURE_BY_ID[id].cost }))} budget={BUDGET} title={tt(`Chosen measures against the ${euro(BUDGET)} budget`, `Gewählte Maßnahmen gegen das Budget von ${euro(BUDGET)}`)} />
           <p className="text-caption text-ash">
             {tt(`${chosen.length} measure${chosen.length === 1 ? "" : "s"} cost ${euro(cost)} of ${euro(BUDGET)}.`, `${chosen.length} ${chosen.length === 1 ? "Maßnahme kostet" : "Maßnahmen kosten"} ${euro(cost)} von ${euro(BUDGET)}.`)}
-            {cost > BUDGET ? tt(` That is ${euro(cost - BUDGET)} over: leave out the lowest score.`, ` Das sind ${euro(cost - BUDGET)} zu viel: Lassen Sie den niedrigsten Wert weg.`) : tt(` ${euro(BUDGET - cost)} is left.`, ` ${euro(BUDGET - cost)} bleiben übrig.`)}
+            {cost > BUDGET ? tt(` That is ${euro(cost - BUDGET)} over. A hint, not a lock: the rule of Materi A7 is to leave out the lowest score; if you keep it, say why below.`, ` Das sind ${euro(cost - BUDGET)} zu viel. Ein Hinweis, keine Sperre: Die Regel aus Materi A7 ist, den niedrigsten Wert wegzulassen; wenn Sie ihn behalten, sagen Sie unten, warum.`) : tt(` ${euro(BUDGET - cost)} is left.`, ` ${euro(BUDGET - cost)} bleiben übrig.`)}
           </p>
         </div>
       )}
@@ -425,7 +449,7 @@ export function Block23() {
           <TextBox
             id={IDS.why}
             label={tt("Why does your first priority go first?", "Warum kommt Ihre erste Priorität zuerst?")}
-            help={tt("Give the order, name the score or the weakness that decides it, say what the plan costs against the budget, and what you left out. At least 60 characters.", "Nennen Sie die Reihenfolge, den Wert oder die Schwäche, die sie entscheidet, was der Plan gegen das Budget kostet und was Sie weggelassen haben. Mindestens 60 Zeichen.")}
+            help={tt("Give the order, name the score or the reason customers gave (Block 1.1) or the stalled signals (Block 2.1) that decides it, say what the plan costs against the budget, and what you left out. At least 60 characters.", "Nennen Sie die Reihenfolge, den Wert oder den Grund der Kunden (Block 1.1) bzw. die stockenden Signale (Block 2.1), die sie entscheiden, was der Plan gegen das Budget kostet und was Sie weggelassen haben. Mindestens 60 Zeichen.")}
             value={l1.why}
             onChange={(v) => patch({ why: v })}
             min={60}
@@ -434,16 +458,24 @@ export function Block23() {
             <WritingHelp
               id="why-help"
               steps={[
-                tt("Say which measure goes first and why: its score, or the weakness it answers.", "Sagen Sie, welche Maßnahme zuerst kommt und warum: ihr Wert, oder die Schwäche, die sie beantwortet."),
+                tt("Say which measure goes first and why: its score, or the reason customers gave (Block 1.1) or the stalled signals (Block 2.1) it answers.", "Sagen Sie, welche Maßnahme zuerst kommt und warum: ihr Wert, oder der Grund der Kunden (Block 1.1) bzw. die stockenden Signale (Block 2.1), die sie beantwortet."),
                 tt("Say what the three cost against the €140,000.", "Sagen Sie, was die drei gegen die 140.000 € kosten."),
                 tt("Say what you left out and why.", "Sagen Sie, was Sie weggelassen haben und warum."),
               ]}
-              refs={[{ label: tt("Budget", "Budget"), value: euro(BUDGET), target: IDS.measurePick }]}
+              refs={[
+                { label: tt("Budget", "Budget"), value: euro(BUDGET), target: IDS.measurePick },
+                { label: tt("Your three measures cost", "Ihre drei Maßnahmen kosten"), value: euro(cost), target: IDS.measurePick },
+                ...shown.map((id, i) => ({ label: tt(`Priority ${i + 1}: ${MEASURE_BY_ID[id].name}, your score`, `Priorität ${i + 1}: ${MEASURE_BY_ID[id].name}, Ihr Wert`), value: String(measureScore(l1, id) || "—"), target: IDS.measure(id) })),
+                { label: tt("Uncertainty signals that stalled (your tags, Block 2.1)", "Unsicherheitssignale, die stockten (Ihre Zuordnung, Block 2.1)"), value: String(tallyOf(l1.tags).stalled.uncertainty), target: "block-2-1" },
+                { label: tt("A reason customers gave (Block 1.1)", "Ein Grund der Kunden (Block 1.1)"), value: REASONS[2].quote, target: IDS.reason(REASONS[2].id) },
+              ]}
             />
           </TextBox>
+          <ExampleAnswer id="why-example" guide={whyGuide()} />
           {mentor && <MentorGuide guide={whyGuide()} />}
         </div>
       )}
+      <BlockMissing block="2.3" route={1} />
     </AnswerBlock>
   );
 }

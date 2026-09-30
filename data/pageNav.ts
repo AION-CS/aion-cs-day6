@@ -1,14 +1,22 @@
 import { MATERIALS, materialAnchorId } from "@/data/materialIndex";
 import type { RouteNo } from "@/lib/routes";
+import { isOptionalBlock } from "@/lib/progress";
 import type { TaskBlockId } from "@/lib/progress";
 import { tt } from "@/lib/lang";
 
 /** The page map on the right of every route (CLAUDE.md #28). Built on call, so it follows the language. */
-export type NavItem = { id: string; short: string; title: string; done?: { card: string } | { block: TaskBlockId } };
+export type NavItem = {
+  id: string;
+  short: string;
+  title: string;
+  done?: { card: string } | { block: TaskBlockId };
+  /** Collapsed by default (OptionalSection), and outside the dossier ring's count and total (CLAUDE.md #35). */
+  optional?: boolean;
+};
 export type NavGroup = { label: string; items: NavItem[] };
 
-const cards = (block: "A" | "B"): NavItem[] => MATERIALS.filter((m) => m.block === block).map((m) => ({ id: materialAnchorId(m.id), short: m.id, title: m.title, done: { card: m.id } }));
-const blk = (n: string, title: string, block: TaskBlockId): NavItem => ({ id: `block-${n.replace(".", "-")}`, short: n, title, done: { block } });
+const cards = (block: "A" | "B"): NavItem[] => MATERIALS.filter((m) => m.block === block).map((m) => ({ id: materialAnchorId(m.id), short: m.id, title: m.title, done: { card: m.id }, optional: m.optional }));
+const blk = (n: string, title: string, block: TaskBlockId): NavItem => ({ id: `block-${n.replace(".", "-")}`, short: n, title, done: { block }, optional: isOptionalBlock(block) });
 
 export function pageNav(route: RouteNo): NavGroup[] {
   if (route === 1)

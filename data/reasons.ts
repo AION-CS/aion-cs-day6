@@ -100,3 +100,19 @@ export const AREA_TESTS = bi([
   { name: t("Relationship or communication?", "Beziehung oder Kommunikation?"), test: t("Would a better message fix it? Then it is communication. Does it need a person the customer knows? Then it is the relationship.", "Würde eine bessere Nachricht es lösen? Dann ist es Kommunikation. Braucht es eine Person, die der Kunde kennt? Dann ist es die Beziehung.") },
   { name: t("Communication or added value?", "Kommunikation oder Mehrwert?"), test: t("Is the problem how something is told, or that nothing useful is given? The way you tell is communication; what you give is added value.", "Ist das Problem, wie etwas erzählt wird, oder dass nichts Nützliches gegeben wird? Wie man erzählt, ist Kommunikation; was man gibt, ist Mehrwert.") },
 ]);
+
+/**
+ * The decisive phrase inside each statement's own text, for "Highlight the key words" on the sort board: it marks where to look, never
+ * which area the statement belongs in (CLAUDE.md #4). Each is an exact substring of the quote in its language (checked by verify:calc).
+ */
+export const REASON_KEY: Record<ReasonId, string> = bi({
+  r1: t("four different account managers in two years", "vier verschiedene Account Manager"),
+  r2: t("Nobody from NetSolutions has visited us", "hat uns niemand von NetSolutions besucht"),
+  r3: t("Never a name", "Nie einen Namen"),
+  r4: t("only hear from NetSolutions when an invoice or a renewal is due", "nur, wenn eine Rechnung oder eine Verlängerung ansteht"),
+  r5: t("twenty pages of numbers", "zwanzig Seiten Zahlen"),
+  r6: t("from our own users, not from NetSolutions", "von unseren eigenen Nutzern erfahren, nicht von NetSolutions"),
+  r7: t("we could get the same from anyone", "das bekämen wir überall"),
+  r8: t("Nobody ever told us how to use the platform better", "Nie hat uns jemand gezeigt, wie wir die Plattform besser nutzen"),
+  r9: t("NetSolutions never suggested anything", "NetSolutions hat nie etwas vorgeschlagen"),
+});

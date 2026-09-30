@@ -103,3 +103,19 @@ export const WEAKNESSES = bi([
   { id: "features" as WeakId, label: t("The product has too few features", "Das Produkt hat zu wenige Funktionen"), real: false, why: t("“The service works” is the customers' own verdict. More features would not create attachment.", "„Der Service funktioniert“ ist das eigene Urteil der Kunden. Mehr Funktionen würden keine Bindung schaffen.") },
 ]);
 export const WEAK_BY_ID = Object.fromEntries(WEAKNESSES.map((w) => [w.id, w])) as Record<WeakId, (typeof WEAKNESSES)[number]>;
+
+/** The decisive phrase inside each observation's own text, for "Highlight the key words" (never which signal type, CLAUDE.md #4). */
+export const OBS_KEY: Record<ObsId, string> = bi({
+  o01: t("how the rollout to their second site would work", "wie der Rollout am zweiten Standort in der ersten Woche laufen würde"),
+  o02: t("follow-up questions about the backup restore time", "Nachfragen zur Wiederherstellungszeit der Backups"),
+  o03: t("which of their users could get admin rights", "welche ihrer Nutzer im neuen Modul Admin-Rechte bekommen könnten"),
+  o04: t("the feature list of a competitor", "die Funktionsliste eines Wettbewerbers"),
+  o05: t("next to the offer from their current provider", "neben dem Angebot ihres aktuellen Anbieters"),
+  o06: t("together with three other providers", "zusammen mit drei anderen Anbietern"),
+  o07: t("if they sign before the end of the quarter", "wenn sie vor Quartalsende unterschreiben"),
+  o08: t("who on our side signs the contract", "wer bei uns den Vertrag unterschreibt"),
+  o09: t("Asked for a start date", "Bat um ein Startdatum"),
+  o10: t("postponed the decision meeting twice without giving a reason", "verschob aber das Entscheidungsmeeting zweimal ohne Grund"),
+  o11: t("if the project fails, and whether they could leave", "wenn das Projekt scheitert, und ob sie nach sechs Monaten aussteigen könnten"),
+  o12: t("with no new questions", "ohne neue Fragen"),
+});

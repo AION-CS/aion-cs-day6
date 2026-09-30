@@ -1,4 +1,5 @@
 import type { ResponseId, SignalType, TeamId } from "@/data/signals";
+import { NETSOL } from "@/data/delight";
 import { bi, t } from "@/lib/lang";
 
 /**
@@ -124,19 +125,99 @@ export const RACI_WHY = bi({
 
 export type ArchId = "view" | "playbook" | "handover" | "reviews" | "moments" | "owners" | "stars" | "discount";
 export const ARCH_IDS: ArchId[] = ["view", "playbook", "handover", "reviews", "moments", "owners", "stars", "discount"];
-export type ArchItem = { id: ArchId; name: string; what: string; cost: number; weeks: number; onePerson: boolean };
+/**
+ * What an item's trigger counts, which fixes the method its number comes from (Materi B6, CLAUDE.md #43):
+ *   coverage · the share of customers the next step needs (customers it needs ÷ all customers)
+ *   deal     · a payback count in deals (item cost ÷ gross profit of one expansion deal)
+ *   customer · a payback count in customers moved to 5 of 5 (item cost ÷ (gross profit kept per customer moved × contract years))
+ */
+export type ArchResult = "coverage" | "deal" | "customer";
+/** Which customer group the item spends on (CLAUDE.md #41): "all" is the internal baseline every group reads. */
+export type GroupId = "satisfied" | "deals" | "delighted" | "dissatisfied";
+export type ArchItem = { id: ArchId; name: string; what: string; cost: number; weeks: number; respond: number; result: ArchResult; group: GroupId | "all"; onePerson: boolean };
 export const ARCH: ArchItem[] = bi([
-  { id: "view" as ArchId, name: t("Shared customer view in the CRM", "Gemeinsame Kundensicht im CRM"), what: t("One record per customer for all three teams, with open signals.", "Ein Datensatz pro Kunde für alle drei Teams, mit offenen Signalen."), cost: 30000, weeks: 6, onePerson: false },
-  { id: "playbook" as ArchId, name: t("Signal response playbook", "Signal-Playbook"), what: t("Owners, response times and first actions for the four signal types.", "Owner, Reaktionszeiten und erste Aktionen für die vier Signalarten."), cost: 35000, weeks: 6, onePerson: false },
-  { id: "handover" as ArchId, name: t("Joint sales and service handover", "Gemeinsame Übergabe von Vertrieb und Service"), what: t("Salesperson and service lead meet the customer together at go-live.", "Verkäufer und Service-Leitung treffen den Kunden gemeinsam beim Go-live."), cost: 20000, weeks: 4, onePerson: false },
-  { id: "reviews" as ArchId, name: t("Success review programme", "Success-Review-Programm"), what: t("Twice-yearly reviews with benchmarks for every customer.", "Halbjährliche Reviews mit Benchmarks für jeden Kunden."), cost: 40000, weeks: 8, onePerson: false },
-  { id: "moments" as ArchId, name: t("Designed delight moments", "Gestaltete Begeisterungsmomente"), what: t("Go-live meeting, first-year review, renewal thank-you in the journey.", "Go-live-Termin, Rückblick nach dem ersten Jahr, Dank zur Verlängerung in der Journey."), cost: 25000, weeks: 6, onePerson: false },
-  { id: "owners" as ArchId, name: t("Relationship owners for every customer", "Beziehungs-Owner für jeden Kunden"), what: t("Named account managers who stay two years, with a quarterly call.", "Feste Account Manager, die zwei Jahre bleiben, mit einem Anruf pro Quartal."), cost: 48000, weeks: 6, onePerson: false },
-  { id: "stars" as ArchId, name: t("Top-seller visits to key customers", "Besuche des besten Verkäufers bei Schlüsselkunden"), what: t("The best salesperson visits the 20 largest customers.", "Der beste Verkäufer besucht die 20 größten Kunden."), cost: 25000, weeks: 2, onePerson: true },
-  { id: "discount" as ArchId, name: t("Loyalty discount at renewal", "Treuerabatt bei Verlängerung"), what: t("8% off every renewal.", "8 % Rabatt bei jeder Verlängerung."), cost: 60000, weeks: 1, onePerson: false },
+  { id: "view" as ArchId, name: t("Shared customer view in the CRM", "Gemeinsame Kundensicht im CRM"), what: t("One record per customer for all three teams, with open signals.", "Ein Datensatz pro Kunde für alle drei Teams, mit offenen Signalen."), cost: 30000, weeks: 4, respond: 0, result: "coverage" as ArchResult, group: "all" as const, onePerson: false },
+  { id: "playbook" as ArchId, name: t("Signal response playbook", "Signal-Playbook"), what: t("Owners, response times and first actions for the four signal types.", "Owner, Reaktionszeiten und erste Aktionen für die vier Signalarten."), cost: 35000, weeks: 4, respond: 1, result: "deal" as ArchResult, group: "deals" as GroupId, onePerson: false },
+  { id: "handover" as ArchId, name: t("Joint sales and service handover", "Gemeinsame Übergabe von Vertrieb und Service"), what: t("Salesperson and service lead meet the customer together when a deal closes.", "Verkäufer und Service-Leitung treffen den Kunden gemeinsam, wenn ein Deal abgeschlossen ist."), cost: 20000, weeks: 4, respond: 2, result: "customer" as ArchResult, group: "deals" as GroupId, onePerson: false },
+  { id: "reviews" as ArchId, name: t("Success review programme", "Success-Review-Programm"), what: t("Twice-yearly reviews with benchmarks for every customer.", "Halbjährliche Reviews mit Benchmarks für jeden Kunden."), cost: 40000, weeks: 8, respond: 1, result: "customer" as ArchResult, group: "satisfied" as GroupId, onePerson: false },
+  { id: "moments" as ArchId, name: t("Designed delight moments", "Gestaltete Begeisterungsmomente"), what: t("Go-live meeting, first-year review, renewal thank-you in the journey.", "Go-live-Termin, Rückblick nach dem ersten Jahr, Dank zur Verlängerung in der Journey."), cost: 25000, weeks: 6, respond: 1, result: "customer" as ArchResult, group: "satisfied" as GroupId, onePerson: false },
+  { id: "owners" as ArchId, name: t("Relationship owners for every customer", "Beziehungs-Owner für jeden Kunden"), what: t("Named account managers who stay two years, with a quarterly call.", "Feste Account Manager, die zwei Jahre bleiben, mit einem Anruf pro Quartal."), cost: 48000, weeks: 6, respond: 2, result: "customer" as ArchResult, group: "satisfied" as GroupId, onePerson: false },
+  { id: "stars" as ArchId, name: t("Top-seller visits to key customers", "Besuche des besten Verkäufers bei Schlüsselkunden"), what: t("The best salesperson visits the 20 largest customers.", "Der beste Verkäufer besucht die 20 größten Kunden."), cost: 25000, weeks: 2, respond: 1, result: "customer" as ArchResult, group: "satisfied" as GroupId, onePerson: true },
+  { id: "discount" as ArchId, name: t("Loyalty discount at renewal", "Treuerabatt bei Verlängerung"), what: t("8% off every renewal.", "8 % Rabatt bei jeder Verlängerung."), cost: 60000, weeks: 1, respond: 3, result: "customer" as ArchResult, group: "deals" as GroupId, onePerson: false },
 ]);
 export const ARCH_BY_ID = Object.fromEntries(ARCH.map((a) => [a.id, a])) as Record<ArchId, ArchItem>;
 export const BASELINE_ITEM: ArchId = "view";
+
+/* ------------------------------------------------------------------ NetSolutions' figures for Route 2 (printed in the case brief) */
+
+/**
+ * Every number a Route 2 answer uses is printed here, once, and every model number is derived from these rows by a method taught in
+ * Materi B6 (CLAUDE.md #43). Case assumptions; the survey and contract figures are the same as in Route 1.
+ */
+export const R2_FIG = {
+  customers: NETSOL.satisfied.customers + NETSOL.delighted.customers + NETSOL.dissatisfied.customers,
+  delighted: NETSOL.delighted.customers,
+  satisfied: NETSOL.satisfied.customers,
+  dissatisfied: NETSOL.dissatisfied.customers,
+  churnSat: NETSOL.satisfied.churn,
+  churnDel: NETSOL.delighted.churn,
+  churnDis: NETSOL.dissatisfied.churn,
+  contract: NETSOL.contract,
+  margin: NETSOL.margin,
+  /** Contracts run three years: the term over which a customer moved to 5 of 5 keeps paying back. */
+  years: 3,
+  /** Customers with an open deal or a renewal in the next six months: the ones the playbook serves. */
+  openDeals: 120,
+  /** Deals that stalled in the last six months. */
+  stalled: 14,
+  /** Gross profit of an average expansion deal. */
+  dealGP: 6000,
+};
+/** Gross profit a year of one customer = contract × margin. */
+export const GP_PER_CUSTOMER = (R2_FIG.contract * R2_FIG.margin) / 100;
+/** Gross profit kept a year per customer moved from satisfied to delighted = (churn satisfied − churn delighted) × contract × margin. */
+export const KEPT_PER_MOVE = (((R2_FIG.churnSat - R2_FIG.churnDel) / 100) * R2_FIG.contract * R2_FIG.margin) / 100;
+/** The same over the contract term. */
+export const KEPT_PER_TERM = KEPT_PER_MOVE * R2_FIG.years;
+
+export type FigKey = "customers" | "delighted" | "satisfied" | "churnSat" | "churnDel" | "contract" | "margin" | "gpCust" | "kept" | "years" | "openDeals" | "stalled" | "dealGP";
+export const FIG_ROW_ID = (k: FigKey) => `r2fig-${k}`;
+
+/* ------------------------------------------------------------------ the methods (Materi B6) */
+
+const up = (x: number) => Math.ceil(x - 1e-9);
+/** Coverage share, in whole %: customers the next step needs ÷ all customers, rounded up. */
+export const coverageShare = (needed: number, all: number) => up((needed / all) * 100);
+/** Payback count: item cost ÷ gross profit per result, rounded up. */
+export const paybackCount = (cost: number, perResult: number) => up(cost / perResult);
+/** Cost of waiting: item cost ÷ gross profit lost per customer who leaves, rounded up. */
+export const waitingCount = (cost: number, perCustomer: number) => up(cost / perCustomer);
+/** Months of set-up: weeks ÷ 4, rounded up. */
+export const setupMonths = (weeks: number) => up(weeks / 4);
+/** Timing: the trigger month = start month + months of set-up + months until customers or deals respond. */
+export const triggerMonth = (start: number, id: ArchId) => start + setupMonths(ARCH_BY_ID[id].weeks) + ARCH_BY_ID[id].respond;
+/** The number an item's trigger uses, by its method. */
+export function triggerNumber(id: ArchId): number {
+  const a = ARCH_BY_ID[id];
+  if (a.result === "coverage") return coverageShare(R2_FIG.openDeals, R2_FIG.customers);
+  if (a.result === "deal") return paybackCount(a.cost, R2_FIG.dealGP);
+  return paybackCount(a.cost, KEPT_PER_TERM);
+}
+/** Expected leavers in the plan's months = customers × yearly churn × months ÷ 12 (the baseline a "they stay" assumption is compared with). */
+export const expectedLeavers = (customers: number, churnPct: number, months: number) => (customers * (churnPct / 100) * months) / 12;
+
+/* ------------------------------------------------------------------ customer groups and what the data can tell (CLAUDE.md #41) */
+
+export const GROUP_IDS: GroupId[] = ["satisfied", "deals", "delighted", "dissatisfied"];
+export const GROUPS = bi({
+  satisfied: { name: t("Satisfied customers (4 of 5)", "Zufriedene Kunden (4 von 5)"), confidence: t("Medium", "Mittel"), confidenceWhy: t("62 of the 90 answered the survey; the other 28 count as satisfied only because they never complained.", "62 der 90 haben die Befragung beantwortet; die anderen 28 gelten nur als zufrieden, weil sie sich nie beschwert haben.") },
+  deals: { name: t("Customers with an open deal or a renewal", "Kunden mit offenem Deal oder Verlängerung"), confidence: t("Low", "Niedrig"), confidenceWhy: t("Only signals someone logged are counted. Of those, 35% are answered in time; nobody knows how many were never logged.", "Gezählt werden nur Signale, die jemand erfasst hat. Davon werden 35 % rechtzeitig beantwortet; niemand weiß, wie viele nie erfasst wurden.") },
+  delighted: { name: t("Delighted customers (5 of 5 and a personal contact)", "Begeisterte Kunden (5 von 5 und persönlicher Kontakt)"), confidence: t("Low", "Niedrig"), confidenceWhy: t("“A personal contact” was ticked by the salesperson, not asked of the customer, and the 5% churn rests on 2 customers a year.", "„Persönlicher Kontakt“ wurde vom Verkäufer angekreuzt, nicht beim Kunden erfragt, und der Churn von 5 % beruht auf 2 Kunden pro Jahr.") },
+  dissatisfied: { name: t("Dissatisfied customers (1 to 3)", "Unzufriedene Kunden (1 bis 3)"), confidence: t("High", "Hoch"), confidenceWhy: t("Their complaints and tickets are all recorded. They are handled by the service quality work, outside this budget.", "Ihre Beschwerden und Tickets sind vollständig erfasst. Sie werden von der Servicequalitätsarbeit betreut, außerhalb dieses Budgets.") },
+});
+export const GROUP_SIZE: Record<GroupId, number> = { satisfied: NETSOL.satisfied.customers, deals: R2_FIG.openDeals, delighted: NETSOL.delighted.customers, dissatisfied: NETSOL.dissatisfied.customers };
+export const GROUP_CHURN: Record<GroupId, number | null> = { satisfied: NETSOL.satisfied.churn, deals: null, delighted: NETSOL.delighted.churn, dissatisfied: NETSOL.dissatisfied.churn };
+export const groupRowId = (g: GroupId) => `r2group-${g}`;
 
 export type OwnerId = "cco" | "salesops" | "saleslead" | "service" | "marketing";
 export const OWNER_IDS: OwnerId[] = ["cco", "salesops", "saleslead", "service", "marketing"];
@@ -159,12 +240,30 @@ export const OWNER_ACCEPT: Record<ArchId, OwnerId[]> = {
 };
 export const MODEL_ARCH: ArchId[] = ["view", "playbook", "handover", "reviews", "moments"];
 export const MODEL_START: Partial<Record<ArchId, number>> = { view: 1, playbook: 2, handover: 2, reviews: 3, moments: 3 };
+/** Model triggers: every number comes from `triggerNumber` and every month from `triggerMonth` on the model start months (#43). */
+export const modelTriggerMonth = (id: ArchId) => triggerMonth(MODEL_START[id] ?? 1, id);
+const tm = modelTriggerMonth;
 export const MODEL_TRIGGER = bi({
-  view: t("If fewer than 80% of customers have a complete shared record by month 2, the playbook waits and the records are completed first.", "Haben bis Monat 2 weniger als 80 % der Kunden einen vollständigen gemeinsamen Datensatz, wartet das Playbook, und zuerst werden die Datensätze vervollständigt."),
-  playbook: t("If fewer than 70% of signals get a response within their response time by month 3, the Head of Sales reviews the owner assignment.", "Bekommen bis Monat 3 weniger als 70 % der Signale innerhalb ihrer Reaktionszeit eine Antwort, prüft die Vertriebsleitung die Owner-Zuordnung."),
-  handover: t("If fewer than 90% of go-lives have a joint handover by month 4, the handover becomes a required step in the CRM.", "Haben bis Monat 4 weniger als 90 % der Go-lives eine gemeinsame Übergabe, wird die Übergabe ein Pflichtschritt im CRM."),
-  reviews: t("If fewer than 60% of customers had a review by month 5, the review is shortened to one hour and a template.", "Hatten bis Monat 5 weniger als 60 % der Kunden ein Review, wird das Review auf eine Stunde und eine Vorlage gekürzt."),
-  moments: t("If the share of customers rating 5 of 5 has not risen by 3 points by month 6, marketing redesigns the moments with service.", "Ist der Anteil der Kunden mit 5 von 5 bis Monat 6 nicht um 3 Punkte gestiegen, gestaltet Marketing die Momente mit dem Service neu."),
+  view: t(
+    `If fewer than ${triggerNumber("view")}% of customers have a complete shared record by month ${tm("view")}, the playbook waits and the records are completed first.`,
+    `Haben bis Monat ${tm("view")} weniger als ${triggerNumber("view")} % der Kunden einen vollständigen gemeinsamen Datensatz, wartet das Playbook, und zuerst werden die Datensätze vervollständigt.`,
+  ),
+  playbook: t(
+    `If fewer than ${triggerNumber("playbook")} stalled deals have moved forward by month ${tm("playbook")}, the Head of Sales reviews who owns which signal.`,
+    `Sind bis Monat ${tm("playbook")} weniger als ${triggerNumber("playbook")} stockende Deals weitergekommen, prüft die Vertriebsleitung, wer welches Signal verantwortet.`,
+  ),
+  handover: t(
+    `If fewer than ${triggerNumber("handover")} customers with a joint handover rate us 5 of 5 by month ${tm("handover")}, the handover becomes a required step in the CRM.`,
+    `Bewerten uns bis Monat ${tm("handover")} weniger als ${triggerNumber("handover")} Kunden mit gemeinsamer Übergabe mit 5 von 5, wird die Übergabe ein Pflichtschritt im CRM.`,
+  ),
+  reviews: t(
+    `If fewer than ${triggerNumber("reviews")} reviewed customers have moved from 4 to 5 of 5 by month ${tm("reviews")}, the review is shortened to one hour and a template.`,
+    `Sind bis Monat ${tm("reviews")} weniger als ${triggerNumber("reviews")} Kunden mit Review von 4 auf 5 von 5 gestiegen, wird das Review auf eine Stunde und eine Vorlage gekürzt.`,
+  ),
+  moments: t(
+    `If fewer than ${triggerNumber("moments")} customers have moved to 5 of 5 after a designed moment by month ${tm("moments")}, marketing redesigns the moments with service.`,
+    `Sind bis Monat ${tm("moments")} weniger als ${triggerNumber("moments")} Kunden nach einem gestalteten Moment auf 5 von 5 gestiegen, gestaltet Marketing die Momente mit dem Service neu.`,
+  ),
 });
 
 /* ------------------------------------------------------------------ 3.6 · the system decision */
@@ -179,15 +278,31 @@ export const MODEL_DECISION: DecisionId = "stage";
 
 export type KpiId = "delighted" | "churn" | "repeat" | "answered" | "mails";
 export const KPIS = bi([
-  { id: "delighted" as KpiId, label: t("Customers rating 5 of 5 (delighted)", "Kunden mit Bewertung 5 von 5 (begeistert)"), unit: "%", baseline: 27, better: "up" as const, behaviour: true },
-  { id: "churn" as KpiId, label: t("Yearly churn among satisfied customers", "Jährlicher Churn bei zufriedenen Kunden"), unit: "%", baseline: 20, better: "down" as const, behaviour: true },
-  { id: "repeat" as KpiId, label: t("Customers with a repeat purchase in the last 12 months", "Kunden mit Wiederkauf in den letzten 12 Monaten"), unit: "%", baseline: 18, better: "up" as const, behaviour: true },
-  { id: "answered" as KpiId, label: t("Signals answered within their response time", "Signale, die in ihrer Reaktionszeit beantwortet wurden"), unit: "%", baseline: 35, better: "up" as const, behaviour: false },
+  { id: "delighted" as KpiId, label: t("Customers rating 5 of 5 (delighted)", "Kunden mit Bewertung 5 von 5 (begeistert)"), unit: t("customers", "Kunden"), baseline: NETSOL.delighted.customers, better: "up" as const, behaviour: true },
+  { id: "churn" as KpiId, label: t("Satisfied customers who gave notice in the last six months", "Zufriedene Kunden, die in den letzten sechs Monaten gekündigt haben"), unit: t("customers", "Kunden"), baseline: (NETSOL.satisfied.customers * NETSOL.satisfied.churn) / 100 / 2, better: "down" as const, behaviour: true },
+  { id: "repeat" as KpiId, label: t("Customers with a repeat purchase in the last 12 months", "Kunden mit Wiederkauf in den letzten 12 Monaten"), unit: t("customers", "Kunden"), baseline: 27, better: "up" as const, behaviour: true },
+  { id: "answered" as KpiId, label: t("Logged signals answered within their response time", "Erfasste Signale, die in ihrer Reaktionszeit beantwortet wurden"), unit: "%", baseline: 35, better: "up" as const, behaviour: false },
   { id: "mails" as KpiId, label: t("Customer emails sent per month", "Versendete Kunden-E-Mails pro Monat"), unit: t("emails", "E-Mails"), baseline: 600, better: "up" as const, behaviour: false },
 ]);
 export const KPI_BY_ID = Object.fromEntries(KPIS.map((k) => [k.id, k])) as Record<KpiId, (typeof KPIS)[number]>;
-export const MODEL_TRIPWIRE = { kpi: "delighted" as KpiId, threshold: 33, month: 5 };
+/** Items whose trigger counts customers moved to 5 of 5: the tripwire's step is their payback count together (Materi B6). */
+export const customerItems = (ids: ArchId[]) => ids.filter((id) => ARCH_BY_ID[id].result === "customer");
+/** Tripwire (baseline plus step): today's delighted customers + (cost of the funded customer items ÷ gross profit kept per customer over the term). */
+export const tripwireStep = (ids: ArchId[]) => paybackCount(customerItems(ids).reduce((s, id) => s + ARCH_BY_ID[id].cost, 0), KEPT_PER_TERM);
+const MODEL_CUSTOMER_ITEMS: ArchId[] = ["handover", "reviews", "moments"];
+export const MODEL_TRIPWIRE = {
+  kpi: "delighted" as KpiId,
+  threshold: NETSOL.delighted.customers + tripwireStep(MODEL_CUSTOMER_ITEMS),
+  month: Math.min(R2_MONTHS, Math.max(...MODEL_CUSTOMER_ITEMS.map(modelTriggerMonth))),
+};
+/** Pickup point for the owner model left out (cost of waiting): satisfied customers who leave before it would have paid. */
+export const MODEL_PICKUP = { item: "owners" as ArchId, count: waitingCount(48000, GP_PER_CUSTOMER), month: R2_MONTHS };
+/** The "they stay" sign for the delighted group: expected leavers in six months, and the count that proves the assumption wrong. */
+export const DELIGHTED_EXPECTED = expectedLeavers(NETSOL.delighted.customers, NETSOL.delighted.churn, R2_MONTHS);
+export const DELIGHTED_WRONG_AT = Math.floor(DELIGHTED_EXPECTED) + 1;
 export const R2_BASELINE_NOTE = bi({ v: t("Baselines are Case assumptions from NetSolutions' last customer survey and contract data.", "Die Ausgangswerte sind Fallannahmen aus der letzten Kundenbefragung und den Vertragsdaten von NetSolutions.") });
+/** The board's challenge: two large satisfied customers leave in month 3. */
+export const CHALLENGE_LOST = 2;
 export const BOARD_CHALLENGE = bi({
   v: t(
     "It is month 3. The shared view and the playbook are running. Then two large satisfied customers announce they will leave anyway, both citing a competitor's personal account team. The Head of Sales wants to stop the success reviews and give their budget to the top seller's personal visits. The board asks what you do.",

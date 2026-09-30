@@ -175,6 +175,14 @@ export function CheckBar({
         {tt("Checks requested:", "Angeforderte Prüfungen:")} <span className="tnum font-semibold text-ink">{checks}</span>
       </span>
       {children}
+      {checks > 0 && (
+        <p className="basis-full text-micro normal-case tracking-normal text-ash">
+          {tt(
+            "A check is a hint, not a verdict. If you decide differently and can give a clear reason, you can still export.",
+            "Eine Prüfung ist ein Hinweis, kein Urteil. Wenn Sie anders entscheiden und einen klaren Grund nennen können, können Sie trotzdem exportieren.",
+          )}
+        </p>
+      )}
     </div>
   );
 }

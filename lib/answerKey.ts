@@ -247,8 +247,8 @@ export function tripKey(): AnswerKeyBlock {
   const k = KPIS.find((x) => x.id === MODEL_TRIPWIRE.kpi)!;
   return {
     title: "Block 3.6 · The tripwire",
-    expected: `${k.label} ≥ ${MODEL_TRIPWIRE.threshold}% by month ${MODEL_TRIPWIRE.month}, else adjust one lever`,
+    expected: `${k.label} ≥ ${MODEL_TRIPWIRE.threshold}${k.unit === "%" ? "%" : ` ${k.unit}`} by month ${MODEL_TRIPWIRE.month} (today ${k.baseline} + the payback count of the funded customer items, Materi B6), else adjust one item`,
     options: KPIS.map((x) => ({ label: `${x.label} (baseline ${x.baseline}${x.unit === "%" ? "%" : ` ${x.unit}`})`, expected: x.behaviour, why: x.behaviour ? "How customers feel or behave: the result the system is meant to move." : "Measures NetSolutions' own activity, not how customers responded." })),
-    teachingNote: "Any customer metric with a threshold better than its baseline defends. Signals answered in time is the tempting one: it is the right trigger for the playbook in 3.5, and the wrong tripwire for the system decision.",
+    teachingNote: "Any customer metric with a threshold better than its baseline defends; its number should come from today plus a step (Materi B6), so a learner who funds other items gets another threshold. Signals answered in time is the tempting one: it measures NetSolutions' own activity, not the customers' response.",
   };
 }

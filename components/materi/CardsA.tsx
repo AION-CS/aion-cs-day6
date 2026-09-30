@@ -3,6 +3,7 @@
 import { Bul, Diagram } from "@/components/materi/kit";
 import { AreaSortExample, DelightValue, ReadAndRespond, SatisfactionCurve, ScoreExample, SignalExample, ThreeFactors } from "@/components/materi/diagramsA";
 import { Callout, DataTable, MaterialCard } from "@/components/ui/MaterialCard";
+import { ShowMore } from "@/components/ui/ShowMore";
 import { AREA_TESTS } from "@/data/reasons";
 import { SIGNALS, SIGNAL_IDS, SIGNAL_PAIR_TESTS } from "@/data/signals";
 import { SUSTAIN_RULE } from "@/data/measures";
@@ -25,27 +26,31 @@ export function CardA1() {
       ]}
       sources={["jones1995", "oliver1997", "kano1984", "dixon2010"]}
     >
-      <p className={p}>
-        {tt(
-          "Jones and Sasser (1995) found that in many markets only completely satisfied customers are reliably loyal; merely satisfied ones leave almost as easily as dissatisfied ones when an alternative appears. Oliver, Rust and Varki (1997) described delight as satisfaction plus a positive surprise and joy. Kano's model (1984) explains why: basic factors only prevent complaints, performance factors satisfy in proportion, and delight factors create enthusiasm that the customer did not expect.",
-          "Jones und Sasser (1995) fanden, dass in vielen Märkten nur völlig zufriedene Kunden verlässlich treu sind; bloß zufriedene gehen fast so leicht wie unzufriedene, wenn eine Alternative auftaucht. Oliver, Rust und Varki (1997) beschrieben Begeisterung als Zufriedenheit plus positive Überraschung und Freude. Das Kano-Modell (1984) erklärt, warum: Basisfaktoren verhindern nur Beschwerden, Leistungsfaktoren machen proportional zufrieden, und Begeisterungsfaktoren schaffen eine Freude, die der Kunde nicht erwartet hat.",
-        )}
-      </p>
+      <ShowMore id="A1" part="research" label={tt("Show the research behind this card", "Die Forschung hinter dieser Karte zeigen")}>
+        <p className={p}>
+          {tt(
+            "Jones and Sasser (1995) found that in many markets only completely satisfied customers are reliably loyal; merely satisfied ones leave almost as easily as dissatisfied ones when an alternative appears. Oliver, Rust and Varki (1997) described delight as satisfaction plus a positive surprise and joy. Kano's model (1984) explains why: basic factors only prevent complaints, performance factors satisfy in proportion, and delight factors create enthusiasm that the customer did not expect.",
+            "Jones und Sasser (1995) fanden, dass in vielen Märkten nur völlig zufriedene Kunden verlässlich treu sind; bloß zufriedene gehen fast so leicht wie unzufriedene, wenn eine Alternative auftaucht. Oliver, Rust und Varki (1997) beschrieben Begeisterung als Zufriedenheit plus positive Überraschung und Freude. Das Kano-Modell (1984) erklärt, warum: Basisfaktoren verhindern nur Beschwerden, Leistungsfaktoren machen proportional zufrieden, und Begeisterungsfaktoren schaffen eine Freude, die der Kunde nicht erwartet hat.",
+          )}
+        </p>
+      </ShowMore>
       <Diagram label={tt("Satisfaction score against retention · a worked example on Kontor Systems", "Zufriedenheit gegen Bindung · ein Beispiel mit Kontor Systems")} caption={tt("Click a point or a score and read how many customers per hundred are still there a year later.", "Klicken Sie auf einen Punkt oder Wert und lesen Sie, wie viele Kunden von hundert ein Jahr später noch da sind.")}>
         <SatisfactionCurve />
       </Diagram>
-      <DataTable
-        head={[tt("Kano factor", "Kano-Faktor"), tt("What it does", "Was es bewirkt"), tt("In managed IT services", "In Managed IT Services")]}
-        rows={[
-          [tt("Basic", "Basis"), tt("Missing: anger. Present: nobody notices.", "Fehlt: Ärger. Vorhanden: Niemand bemerkt es."), tt("Uptime, security patches, invoices that are right", "Verfügbarkeit, Sicherheitsupdates, korrekte Rechnungen")],
-          [tt("Performance", "Leistung"), tt("More is better, in proportion.", "Mehr ist besser, proportional."), tt("Response time, reporting, price", "Reaktionszeit, Reporting, Preis")],
-          [tt("Delight", "Begeisterung"), tt("Missing: nobody complains. Present: enthusiasm.", "Fehlt: Niemand klagt. Vorhanden: Begeisterung."), tt("A named person who knows you, advice you did not ask for, a remembered milestone", "Eine benannte Person, die Sie kennt, Rat, nach dem Sie nicht fragten, ein erinnerter Meilenstein")],
-        ]}
-        caption={tt("Three kinds of quality", "Drei Arten von Qualität")}
-      />
-      <Callout label={tt("A caution from research", "Eine Warnung aus der Forschung")} tone="rust">
-        <p>{tt("Dixon, Freeman and Toman (2010) found that in service, reducing the customer's effort often does more for loyalty than surprising it. Delight works on top of a reliable, easy service, never in place of one.", "Dixon, Freeman und Toman (2010) fanden, dass im Service das Senken des Kundenaufwands oft mehr für Loyalität bringt als Überraschen. Begeisterung wirkt auf einem verlässlichen, einfachen Service, nie an seiner Stelle.")}</p>
-      </Callout>
+      <ShowMore id="A1" part="extra" label={tt("Show the three kinds of quality (Kano) and a caution", "Die drei Qualitätsarten (Kano) und eine Warnung zeigen")}>
+        <DataTable
+          head={[tt("Kano factor", "Kano-Faktor"), tt("What it does", "Was es bewirkt"), tt("In managed IT services", "In Managed IT Services")]}
+          rows={[
+            [tt("Basic", "Basis"), tt("Missing: anger. Present: nobody notices.", "Fehlt: Ärger. Vorhanden: Niemand bemerkt es."), tt("Uptime, security patches, invoices that are right", "Verfügbarkeit, Sicherheitsupdates, korrekte Rechnungen")],
+            [tt("Performance", "Leistung"), tt("More is better, in proportion.", "Mehr ist besser, proportional."), tt("Response time, reporting, price", "Reaktionszeit, Reporting, Preis")],
+            [tt("Delight", "Begeisterung"), tt("Missing: nobody complains. Present: enthusiasm.", "Fehlt: Niemand klagt. Vorhanden: Begeisterung."), tt("A named person who knows you, advice you did not ask for, a remembered milestone", "Eine benannte Person, die Sie kennt, Rat, nach dem Sie nicht fragten, ein erinnerter Meilenstein")],
+          ]}
+          caption={tt("Three kinds of quality", "Drei Arten von Qualität")}
+        />
+        <Callout label={tt("A caution from research", "Eine Warnung aus der Forschung")} tone="rust">
+          <p>{tt("Dixon, Freeman and Toman (2010) found that in service, reducing the customer's effort often does more for loyalty than surprising it. Delight works on top of a reliable, easy service, never in place of one.", "Dixon, Freeman und Toman (2010) fanden, dass im Service das Senken des Kundenaufwands oft mehr für Loyalität bringt als Überraschen. Begeisterung wirkt auf einem verlässlichen, einfachen Service, nie an seiner Stelle.")}</p>
+        </Callout>
+      </ShowMore>
     </MaterialCard>
   );
 }
@@ -64,12 +69,14 @@ export function CardA2() {
       ]}
       sources={["morgan1994", "gustafsson2005", "palmatier2006"]}
     >
-      <p className={p}>
-        {tt(
-          "Morgan and Hunt (1994) put trust and commitment at the centre of lasting business relationships. Gustafsson, Johnson and Roos (2005) showed that affective commitment, staying because one wants to, keeps customers beyond what satisfaction explains. Palmatier and colleagues (2006) found in a meta-analysis that relationships with a person weigh more than relationships with a firm.",
-          "Morgan und Hunt (1994) stellten Vertrauen und Commitment ins Zentrum dauerhafter Geschäftsbeziehungen. Gustafsson, Johnson und Roos (2005) zeigten, dass affektive Bindung, also bleiben, weil man will, Kunden über das hinaus hält, was Zufriedenheit erklärt. Palmatier und Kollegen (2006) fanden in einer Metaanalyse, dass Beziehungen zu einer Person mehr wiegen als Beziehungen zu einer Firma.",
-        )}
-      </p>
+      <ShowMore id="A2" part="research" label={tt("Show the research behind this card", "Die Forschung hinter dieser Karte zeigen")}>
+        <p className={p}>
+          {tt(
+            "Morgan and Hunt (1994) put trust and commitment at the centre of lasting business relationships. Gustafsson, Johnson and Roos (2005) showed that affective commitment, staying because one wants to, keeps customers beyond what satisfaction explains. Palmatier and colleagues (2006) found in a meta-analysis that relationships with a person weigh more than relationships with a firm.",
+            "Morgan und Hunt (1994) stellten Vertrauen und Commitment ins Zentrum dauerhafter Geschäftsbeziehungen. Gustafsson, Johnson und Roos (2005) zeigten, dass affektive Bindung, also bleiben, weil man will, Kunden über das hinaus hält, was Zufriedenheit erklärt. Palmatier und Kollegen (2006) fanden in einer Metaanalyse, dass Beziehungen zu einer Person mehr wiegen als Beziehungen zu einer Firma.",
+          )}
+        </p>
+      </ShowMore>
       <Diagram label={tt("Three pillars of emotional retention · switch each one on and off", "Drei Säulen emotionaler Bindung · jede ein- und ausschalten")} caption={tt("Read the box that changes under the buttons: it says what kind of customer relationship you would have with only those factors.", "Lesen Sie das Feld unter den Schaltflächen: Es sagt, welche Art Kundenbeziehung Sie nur mit diesen Faktoren hätten.")}>
         <ThreeFactors />
       </Diagram>
@@ -85,12 +92,14 @@ export function CardA3() {
       reasoning={[...AREA_TESTS.map((a) => `${a.name}: ${a.test}`), tt("Sort by what would fix it, not by the words used. “Nobody calls us” is relationship if the customer misses a person, communication if it misses information in time.", "Sortieren Sie danach, was es beheben würde, nicht nach den verwendeten Worten. „Niemand ruft uns an“ ist Beziehung, wenn dem Kunden eine Person fehlt, Kommunikation, wenn ihm rechtzeitige Information fehlt.")]}
       sources={["palmatier2006", "heskett1994"]}
     >
-      <p className={p}>
-        {tt(
-          "The three areas are practical, not theoretical: they tell you who has to act. A relationship gap needs a person; a communication gap needs a change in how and when you tell; an added-value gap needs something new to give. Mixing them up leads to the typical mistake: a newsletter sent to fix a missing person.",
-          "Die drei Bereiche sind praktisch, nicht theoretisch: Sie sagen, wer handeln muss. Eine Beziehungslücke braucht eine Person; eine Kommunikationslücke braucht eine Änderung darin, wie und wann Sie informieren; eine Mehrwertlücke braucht etwas Neues zum Geben. Wer sie verwechselt, macht den typischen Fehler: einen Newsletter verschicken, um eine fehlende Person zu ersetzen.",
-        )}
-      </p>
+      <ShowMore id="A3" part="research" label={tt("Show the research behind this card", "Die Forschung hinter dieser Karte zeigen")}>
+        <p className={p}>
+          {tt(
+            "The three areas are practical, not theoretical: they tell you who has to act. A relationship gap needs a person; a communication gap needs a change in how and when you tell; an added-value gap needs something new to give. Mixing them up leads to the typical mistake: a newsletter sent to fix a missing person.",
+            "Die drei Bereiche sind praktisch, nicht theoretisch: Sie sagen, wer handeln muss. Eine Beziehungslücke braucht eine Person; eine Kommunikationslücke braucht eine Änderung darin, wie und wann Sie informieren; eine Mehrwertlücke braucht etwas Neues zum Geben. Wer sie verwechselt, macht den typischen Fehler: einen Newsletter verschicken, um eine fehlende Person zu ersetzen.",
+          )}
+        </p>
+      </ShowMore>
       <AreaSortExample />
       <DataTable
         head={[tt("Area", "Bereich"), tt("The test question", "Die Testfrage"), tt("What fixes it", "Was es behebt")]}
@@ -119,26 +128,30 @@ export function CardA4() {
       ]}
       sources={["reichheld1996", "jones1995"]}
     >
-      <p className={p}>
-        {tt(
-          "Reichheld (1996) made the economics of loyalty visible: a customer who stays keeps paying, costs less to serve and recommends. The simplest version for a manager is the arithmetic of churn below. It needs only four numbers per group, all of which a CRM and a customer survey already hold.",
-          "Reichheld (1996) machte die Ökonomie der Loyalität sichtbar: Ein Kunde, der bleibt, zahlt weiter, kostet weniger in der Betreuung und empfiehlt weiter. Die einfachste Version für eine Führungskraft ist die Churn-Rechnung unten. Sie braucht nur vier Zahlen pro Gruppe, die CRM und Kundenbefragung bereits enthalten.",
-        )}
-      </p>
+      <ShowMore id="A4" part="research" label={tt("Show the research behind this card", "Die Forschung hinter dieser Karte zeigen")}>
+        <p className={p}>
+          {tt(
+            "Reichheld (1996) made the economics of loyalty visible: a customer who stays keeps paying, costs less to serve and recommends. The simplest version for a manager is the arithmetic of churn below. It needs only four numbers per group, all of which a CRM and a customer survey already hold.",
+            "Reichheld (1996) machte die Ökonomie der Loyalität sichtbar: Ein Kunde, der bleibt, zahlt weiter, kostet weniger in der Betreuung und empfiehlt weiter. Die einfachste Version für eine Führungskraft ist die Churn-Rechnung unten. Sie braucht nur vier Zahlen pro Gruppe, die CRM und Kundenbefragung bereits enthalten.",
+          )}
+        </p>
+      </ShowMore>
       <Diagram label={tt("What Kontor loses and keeps · a worked example", "Was Kontor verliert und hält · ein Beispiel")} caption={tt("Choose how many satisfied customers become delighted and read the gross profit kept.", "Wählen Sie, wie viele zufriedene Kunden begeistert werden, und lesen Sie den gehaltenen Rohertrag.")}>
         <DelightValue />
       </Diagram>
-      <DataTable
-        head={[tt("Step", "Schritt"), tt("Calculation for Kontor (Case assumption)", "Rechnung für Kontor (Fallannahme)"), tt("Result", "Ergebnis")]}
-        rows={[
-          [tt("1 · Customers leaving per year, satisfied", "1 · Kunden, die pro Jahr gehen, zufrieden"), `${KONTOR.satisfied.customers} × ${KONTOR.satisfied.churn}%`, String((KONTOR.satisfied.customers * KONTOR.satisfied.churn) / 100)],
-          [tt("2 · Gross profit per customer", "2 · Rohertrag pro Kunde"), `${euro(KONTOR.contract)} × ${KONTOR.margin}%`, euro(KONTOR.contract * (KONTOR.margin / 100))],
-          [tt("3 · Gross profit lost, satisfied", "3 · Verlorener Rohertrag, zufrieden"), `${(KONTOR.satisfied.customers * KONTOR.satisfied.churn) / 100} × ${euro(KONTOR.contract * (KONTOR.margin / 100))}`, euro(KONTOR_RESULT.satisfied)],
-          [tt("4 · Same for the delighted group", "4 · Dasselbe für die begeisterte Gruppe"), `${KONTOR.delighted.customers} × ${KONTOR.delighted.churn}% × ${euro(KONTOR.contract)} × ${KONTOR.margin}%`, euro(KONTOR_RESULT.delighted)],
-          [tt("5 · Kept by moving 10 customers", "5 · Gehalten durch Verschieben von 10 Kunden"), `${KONTOR.moved} × (${KONTOR.satisfied.churn}% − ${KONTOR.delighted.churn}% = ${d} points) × ${euro(KONTOR.contract)} × ${KONTOR.margin}%`, euro(KONTOR_RESULT.kept)],
-        ]}
-        caption={tt("The same method as the task, on different numbers", "Dieselbe Methode wie in der Aufgabe, mit anderen Zahlen")}
-      />
+      <ShowMore id="A4" part="calc" label={tt("Show Kontor's calculation step by step", "Kontors Rechnung Schritt für Schritt zeigen")}>
+        <DataTable
+          head={[tt("Step", "Schritt"), tt("Calculation for Kontor (Case assumption)", "Rechnung für Kontor (Fallannahme)"), tt("Result", "Ergebnis")]}
+          rows={[
+            [tt("1 · Customers leaving per year, satisfied", "1 · Kunden, die pro Jahr gehen, zufrieden"), `${KONTOR.satisfied.customers} × ${KONTOR.satisfied.churn}%`, String((KONTOR.satisfied.customers * KONTOR.satisfied.churn) / 100)],
+            [tt("2 · Gross profit per customer", "2 · Rohertrag pro Kunde"), `${euro(KONTOR.contract)} × ${KONTOR.margin}%`, euro(KONTOR.contract * (KONTOR.margin / 100))],
+            [tt("3 · Gross profit lost, satisfied", "3 · Verlorener Rohertrag, zufrieden"), `${(KONTOR.satisfied.customers * KONTOR.satisfied.churn) / 100} × ${euro(KONTOR.contract * (KONTOR.margin / 100))}`, euro(KONTOR_RESULT.satisfied)],
+            [tt("4 · Same for the delighted group", "4 · Dasselbe für die begeisterte Gruppe"), `${KONTOR.delighted.customers} × ${KONTOR.delighted.churn}% × ${euro(KONTOR.contract)} × ${KONTOR.margin}%`, euro(KONTOR_RESULT.delighted)],
+            [tt("5 · Kept by moving 10 customers", "5 · Gehalten durch Verschieben von 10 Kunden"), `${KONTOR.moved} × (${KONTOR.satisfied.churn}% − ${KONTOR.delighted.churn}% = ${d} points) × ${euro(KONTOR.contract)} × ${KONTOR.margin}%`, euro(KONTOR_RESULT.kept)],
+          ]}
+          caption={tt("The same method as the task, on different numbers", "Dieselbe Methode wie in der Aufgabe, mit anderen Zahlen")}
+        />
+      </ShowMore>
     </MaterialCard>
   );
 }
@@ -155,12 +168,14 @@ export function CardA5() {
       ]}
       sources={["rackham1988", "adamson2012"]}
     >
-      <p className={p}>
-        {tt(
-          "Rackham (1988) observed in thousands of large sales that a buyer's questions change as a decision nears: first about how it works, then about how it compares, then about risk and commitment. The risk questions are the dangerous ones, because sellers hear them as interest. Adamson, Dixon and Toman (2012) add that B2B buyers are far into their decision before they call; the signals you see are late, and there is little time to answer them.",
-          "Rackham (1988) beobachtete in Tausenden großer Verkäufe, dass sich die Fragen eines Käufers ändern, je näher eine Entscheidung rückt: zuerst dazu, wie es funktioniert, dann wie es sich vergleicht, dann zu Risiko und Festlegung. Die Risikofragen sind die gefährlichen, weil Verkäufer sie als Interesse hören. Adamson, Dixon und Toman (2012) ergänzen, dass B2B-Käufer weit in ihrer Entscheidung sind, bevor sie anrufen; die Signale, die Sie sehen, kommen spät, und es bleibt wenig Zeit, sie zu beantworten.",
-        )}
-      </p>
+      <ShowMore id="A5" part="research" label={tt("Show the research behind this card", "Die Forschung hinter dieser Karte zeigen")}>
+        <p className={p}>
+          {tt(
+            "Rackham (1988) observed in thousands of large sales that a buyer's questions change as a decision nears: first about how it works, then about how it compares, then about risk and commitment. The risk questions are the dangerous ones, because sellers hear them as interest. Adamson, Dixon and Toman (2012) add that B2B buyers are far into their decision before they call; the signals you see are late, and there is little time to answer them.",
+            "Rackham (1988) beobachtete in Tausenden großer Verkäufe, dass sich die Fragen eines Käufers ändern, je näher eine Entscheidung rückt: zuerst dazu, wie es funktioniert, dann wie es sich vergleicht, dann zu Risiko und Festlegung. Die Risikofragen sind die gefährlichen, weil Verkäufer sie als Interesse hören. Adamson, Dixon und Toman (2012) ergänzen, dass B2B-Käufer weit in ihrer Entscheidung sind, bevor sie anrufen; die Signale, die Sie sehen, kommen spät, und es bleibt wenig Zeit, sie zu beantworten.",
+          )}
+        </p>
+      </ShowMore>
       <DataTable
         head={[tt("Signal", "Signal"), tt("What is going on", "Was passiert"), tt("What it sounds like", "Wie es klingt"), tt("Test question", "Testfrage")]}
         rows={SIGNAL_IDS.map((s) => [SIGNALS[s].label, SIGNALS[s].means, SIGNALS[s].sounds, SIGNALS[s].test])}
@@ -188,9 +203,11 @@ export function CardA6() {
       <Diagram label={tt("Read the signal right, or wrong · what happens next", "Das Signal richtig oder falsch lesen · was dann passiert")} caption={tt("Choose what the buyer really signals and how sales reads it. The box shows the response sent against the one needed.", "Wählen Sie, was der Käufer wirklich signalisiert und wie der Vertrieb es liest. Das Feld zeigt die gesendete gegen die nötige Antwort.")}>
         <ReadAndRespond />
       </Diagram>
-      <Callout label={tt("System instead of individual action", "System statt Einzelaktion")} tone="amber">
-        <p>{tt("A good salesperson answers signals well by instinct. A system makes sure every signal is answered well, including on the day that salesperson is ill, and including the signals nobody noticed. That is the difference between reacting and managing.", "Ein guter Verkäufer beantwortet Signale aus dem Bauch heraus gut. Ein System sorgt dafür, dass jedes Signal gut beantwortet wird, auch an dem Tag, an dem dieser Verkäufer krank ist, und auch die Signale, die niemand bemerkt hat. Das ist der Unterschied zwischen Reagieren und Steuern.")}</p>
-      </Callout>
+      <ShowMore id="A6" part="extra" label={tt("Show: system instead of individual action", "Zeigen: System statt Einzelaktion")}>
+        <Callout label={tt("System instead of individual action", "System statt Einzelaktion")} tone="amber">
+          <p>{tt("A good salesperson answers signals well by instinct. A system makes sure every signal is answered well, including on the day that salesperson is ill, and including the signals nobody noticed. That is the difference between reacting and managing.", "Ein guter Verkäufer beantwortet Signale aus dem Bauch heraus gut. Ein System sorgt dafür, dass jedes Signal gut beantwortet wird, auch an dem Tag, an dem dieser Verkäufer krank ist, und auch die Signale, die niemand bemerkt hat. Das ist der Unterschied zwischen Reagieren und Steuern.")}</p>
+        </Callout>
+      </ShowMore>
     </MaterialCard>
   );
 }
@@ -222,12 +239,14 @@ export function CardA7() {
         ]}
         caption={tt("The three scores", "Die drei Werte")}
       />
-      <Bul
-        items={[
-          tt("The plan names this evaluation for the case: effect × sustainability × feasibility.", "Der Plan nennt diese Bewertung für den Fall: Wirkung × Nachhaltigkeit × Machbarkeit."),
-          tt("Scores make a judgement comparable; they are not a mark.", "Werte machen ein Urteil vergleichbar; sie sind keine Note."),
-        ]}
-      />
+      <ShowMore id="A7" part="extra" label={tt("Show two notes on the scores", "Zwei Hinweise zu den Werten zeigen")}>
+        <Bul
+          items={[
+            tt("The plan names this evaluation for the case: effect × sustainability × feasibility.", "Der Plan nennt diese Bewertung für den Fall: Wirkung × Nachhaltigkeit × Machbarkeit."),
+            tt("Scores make a judgement comparable; they are not a mark.", "Werte machen ein Urteil vergleichbar; sie sind keine Note."),
+          ]}
+        />
+      </ShowMore>
     </MaterialCard>
   );
 }

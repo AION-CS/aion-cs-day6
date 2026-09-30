@@ -22,7 +22,8 @@ export type RefKey =
   | "courtney1997"
   | "klein2007"
   | "doran1981"
-  | "deming1986";
+  | "deming1986"
+  | "hubbard2014";
 
 export type Reference = { key: RefKey; chip: string; full: string };
 
@@ -47,6 +48,7 @@ export const REFERENCES: Record<RefKey, Reference> = bi({
   klein2007: r("klein2007", "Klein 2007", "Klein, G. (2007). Performing a project premortem. Harvard Business Review, 85(9), 18–19. (Imagine the plan has failed and write down why, before it starts.)", "Klein, G. (2007). Performing a project premortem. Harvard Business Review, 85(9), 18–19. (Sich vorstellen, der Plan sei gescheitert, und aufschreiben warum, bevor er startet.)"),
   doran1981: r("doran1981", "Doran 1981", "Doran, G. T. (1981). There's a S.M.A.R.T. way to write management's goals and objectives. Management Review, 70(11), 35–36.", "Doran, G. T. (1981). There's a S.M.A.R.T. way to write management's goals and objectives. Management Review, 70(11), 35–36."),
   deming1986: r("deming1986", "Deming 1986", "Deming, W. E. (1986). Out of the Crisis. MIT Center for Advanced Engineering Study. (Plan, do, study, act.)", "Deming, W. E. (1986). Out of the Crisis. MIT Center for Advanced Engineering Study. (Plan, Do, Study, Act.)"),
+  hubbard2014: r("hubbard2014", "Hubbard 2014", "Hubbard, D. W. (2014). How to Measure Anything (3rd ed.). Wiley. (A measurement is worth making when it could change the decision; a threshold is set before the result is known.)", "Hubbard, D. W. (2014). How to Measure Anything (3. Aufl.). Wiley. (Eine Messung lohnt sich, wenn sie die Entscheidung ändern könnte; eine Schwelle wird festgelegt, bevor das Ergebnis bekannt ist.)"),
 });
 
 export const refFull = (key: RefKey) => REFERENCES[key].full;

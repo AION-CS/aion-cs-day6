@@ -1,6 +1,7 @@
 "use client";
 
 import { ExportBar } from "@/components/ui/ExportBar";
+import { OptionalSection } from "@/components/ui/OptionalSection";
 import { Block11, Block12, Block13, Block14 } from "@/components/task1/Part1";
 import { Block21, Block22, Block23 } from "@/components/task1/Part2";
 import { Callout } from "@/components/ui/MaterialCard";
@@ -11,7 +12,7 @@ import { euro, tt } from "@/lib/lang";
 import { exportName } from "@/lib/slug";
 import { usePersisted } from "@/store/usePersisted";
 import { Gloss } from "@/lib/glossify";
-import { TASK1_MINUTES } from "@/lib/routes";
+import { BLOCK_MINUTES, TASK1_MINUTES } from "@/lib/routes";
 
 function CaseBrief() {
   return (
@@ -96,11 +97,32 @@ export function Task1() {
       <PartHeading id="part-1" n={1} title={tt("Understand the missing tie", "Die fehlende Bindung verstehen")} level={tt("Level 1 · Knowledge", "Level 1 · Wissen")} />
       <Block11 />
       <Block12 />
-      <Block13 />
-      <Block14 />
+      <OptionalSection
+        id="block-1-3"
+        title={tt("Block 1.3 · What is missing, three approaches to delight", "Block 1.3 · Was fehlt, drei Ansätze für Begeisterung")}
+        minutes={BLOCK_MINUTES["1.3"]}
+        reason={tt("Turns the sort of Block 1.1 into approaches in your own words; the measures of Block 2.3 do not need it.", "Macht aus der Sortierung von Block 1.1 Ansätze in eigenen Worten; die Maßnahmen in Block 2.3 brauchen es nicht.")}
+      >
+        <Block13 />
+      </OptionalSection>
+      <OptionalSection
+        id="block-1-4"
+        title={tt("Block 1.4 · Coaching reflection", "Block 1.4 · Coaching-Reflexion")}
+        minutes={BLOCK_MINUTES["1.4"]}
+        reason={tt("A reflective bridge between Level 1 and Level 2, not content the Retention Analysis File itself needs.", "Eine reflektierende Brücke zwischen Level 1 und Level 2, kein Inhalt, den die Retention Analysis File selbst braucht.")}
+      >
+        <Block14 />
+      </OptionalSection>
       <PartHeading id="part-2" n={2} title={tt("Read the signals and act", "Die Signale lesen und handeln")} level={tt("Level 2 · Application", "Level 2 · Anwendung")} />
       <Block21 />
-      <Block22 />
+      <OptionalSection
+        id="block-2-2"
+        title={tt("Block 2.2 · Weaknesses and a simple response system", "Block 2.2 · Schwächen und ein einfaches Antwortsystem")}
+        minutes={BLOCK_MINUTES["2.2"]}
+        reason={tt("Designs the response to each signal type from your tags in Block 2.1; Block 2.3 can be answered without it.", "Gestaltet die Antwort auf jede Signalart aus Ihrer Zuordnung in Block 2.1; Block 2.3 lässt sich auch ohne es beantworten.")}
+      >
+        <Block22 />
+      </OptionalSection>
       <Block23 />
       <ExportBar
         id="export-l1l2"
