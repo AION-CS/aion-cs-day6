@@ -155,6 +155,17 @@ step tables with pitfalls, every free text with what to look for). Client-side c
     **Kept by the user's decision (2026-09-30):** Materi B2's table "A signal process for a managed IT provider" prints the same owner,
     time and first action per signal type that Block 3.2 asks for. #25 would move it to another case; the user chose to keep it, because
     what matters in the task is that learners can see where every number and clue comes from.
+22. **“Acts on” label in Block 2.3 (2026-09-30, user feedback; CLAUDE.md #45).** Every measure now carries, after its weeks, the area of
+    Materi A3 it acts on (Relationship, Communication, Added value, or Price for the discount) as a small teal pill and in the chosen card's
+    header. It is a fact taken from A3's own tests, never the factor and never a score. A line above the list says customers named three
+    areas in Block 1.1 and that none of the nine statements mentions price (`verify:calc` checks that in both languages). A3 and A7 carry the
+    rule in their decision rules, and the “Show the test questions” help repeats it. The model three act on one area each. The label does
+    not rank by itself: owner, playbook, reviews and handover all defend, and durability and feasibility still decide. The Route 1 Word
+    task lists the label in a new “Acts on” column.
+23. **“Left out” in Block 2.3 made explicit (2026-09-30, user feedback).** The reason field now says that “left out” means one of the six
+    measures the learner did not choose, not the second or third priority, asks to name the one that tempted them most and to say why it
+    stays out (its score, its area, what it runs on, or the budget). The “What to look at” list shows every not-chosen measure with its cost,
+    area and what it runs on, live from the learner's picks. The mentor's `lookFor` and the Word task say the same.
 
 ## Dependency checklist (CLAUDE.md #40)
 

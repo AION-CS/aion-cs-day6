@@ -86,6 +86,11 @@ ok("model three fit the budget", meas.MODEL_COST <= meas.BUDGET);
 eq("model three are the three highest scores", [...meas.MEASURES].sort((a, b) => meas.modelScore(b.id) - meas.modelScore(a.id)).slice(0, 3).map((m) => m.id).sort(), [...meas.MODEL_MEASURES].sort());
 ok("owner model on top of the model three breaks the budget", meas.MODEL_COST + meas.MEASURE_BY_ID.owner.cost > meas.BUDGET);
 ok("discount and newsletter build no factor", meas.MEASURE_BY_ID.discount.targets.length === 0 && meas.MEASURE_BY_ID.newsletter.targets.length === 0);
+// The "Acts on" label printed after the weeks (CLAUDE.md #45)
+ok("every measure has a valid area", meas.MEASURES.every((m) => ["rel", "comm", "value", "price"].includes(m.area)));
+eq("only the discount acts on price", meas.MEASURES.filter((m) => m.area === "price").map((m) => m.id), ["discount"]);
+eq("the model three act on the three areas customers named, one each", meas.MODEL_MEASURES.map((id) => meas.MEASURE_BY_ID[id].area).sort(), ["comm", "rel", "value"]);
+ok("a measure that acts on price builds no factor", meas.MEASURES.every((m) => m.area !== "price" || m.targets.length === 0));
 
 // --- Route 2 --------------------------------------------------------------------
 const archCost = r2.MODEL_ARCH.reduce((s, id) => s + r2.ARCH_BY_ID[id].cost, 0);
@@ -223,6 +228,7 @@ for (const l of ["en", "de"]) {
   lang.setCurrentLang(l);
   for (const r of rs.REASONS) ok(`[${l}] key phrase inside statement ${r.id}`, r.quote.includes(rs.REASON_KEY[r.id]));
   for (const o of sig.OBSERVATIONS) ok(`[${l}] key phrase inside observation ${o.id}`, o.text.includes(sig.OBS_KEY[o.id]));
+  for (const r of rs.REASONS) ok(`[${l}] statement ${r.id} does not mention price`, !/price|preis|rabatt|discount|teuer|expensive|cheap|günstig/i.test(r.quote));
 }
 lang.setCurrentLang("en");
 

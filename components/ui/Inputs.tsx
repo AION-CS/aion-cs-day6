@@ -66,7 +66,8 @@ export function TextBox({
   );
 }
 
-export type Opt<T extends string> = { id: T; label: string; sub?: string };
+/** `tag`: a small fact printed right after the label (e.g. the area a measure acts on), never a verdict. */
+export type Opt<T extends string> = { id: T; label: string; sub?: string; tag?: string };
 
 /** A vertical list of options, each a real button with a pressed state. Single or multiple choice; 44 px tall at least. */
 export function OptionList<T extends string>({
@@ -112,6 +113,7 @@ export function OptionList<T extends string>({
                 {multi ? (on(o.id) ? "☑" : "☐") : on(o.id) ? "◉" : "○"}
               </span>
               {o.label}
+              {o.tag && <span className="ml-2 inline-block whitespace-nowrap rounded-full border border-signal/40 bg-signalSoft px-2 py-0.5 align-middle text-micro font-semibold normal-case tracking-normal text-signal">{o.tag}</span>}
             </span>
             {o.sub && <span className="mt-0.5 pl-5 text-ash">{o.sub}</span>}
           </button>

@@ -17,7 +17,7 @@ import { REASONS } from "@/data/reasons";
 import type { ObsId, ResponseId, SignalType, TeamId, WeakId } from "@/data/signals";
 import { FACTORS, FACTOR_LABEL } from "@/data/approaches";
 import type { Factor } from "@/data/approaches";
-import { BUDGET, CHOOSE, MEASURES, MEASURE_BY_ID, MONTHS, RUNS_ON_LABEL, SUSTAIN_RULE } from "@/data/measures";
+import { BUDGET, CHOOSE, MEASURES, MEASURE_AREA_LABEL, MEASURE_BY_ID, MONTHS, RUNS_ON_LABEL, SUSTAIN_RULE } from "@/data/measures";
 import type { MeasureId } from "@/data/measures";
 import { aimsHold, allTagged, coverage, measureScore, measureScored, orderInversions, susHolds, systemHolds, tagHolds, tallyOf, totalCost, weakHolds } from "@/lib/checks";
 import { scrollToAndFlash } from "@/lib/flash";
@@ -293,10 +293,13 @@ export function Block23() {
       minutes={BLOCK_MINUTES["2.3"]}
       findIt={tt(`Route 1 → Task 1 → “The limits” in the case above (${euro(BUDGET)}, ${MONTHS} months) and the nine measures below. Answer by choosing three and filling their cards.`, `Route 1 → Task 1 → „Die Grenzen“ im Fall oben (${euro(BUDGET)}, ${MONTHS} Monate) und die neun Maßnahmen unten. Antworten Sie, indem Sie drei wählen und ihre Karten ausfüllen.`)}
     >
-      <MaterialRefs refs={["A7", "A2"]} />
+      <MaterialRefs refs={["A7", "A2", "A3"]} />
       <div id={IDS.measurePick} className="space-y-2">
         <p className="text-body text-ink">
-          <Gloss>{tt("Choose exactly three of the nine measures. Each says what it does, what it changes for the customer and what it runs on; it does not say which factor it builds. That is your job.", "Wählen Sie genau drei der neun Maßnahmen. Jede sagt, was sie tut, was sie für den Kunden ändert und worauf sie läuft; sie sagt nicht, welchen Faktor sie aufbaut. Das ist Ihre Aufgabe.")}</Gloss>
+          <Gloss>{tt("Choose exactly three of the nine measures. Each says what it does, what it changes for the customer, what it runs on, and, after the weeks, which area it acts on (Materi A3); it does not say which factor it builds. That is your job.", "Wählen Sie genau drei der neun Maßnahmen. Jede sagt, was sie tut, was sie für den Kunden ändert, worauf sie läuft und, hinter den Wochen, auf welchen Bereich sie wirkt (Materi A3); sie sagt nicht, welchen Faktor sie aufbaut. Das ist Ihre Aufgabe.")}</Gloss>
+        </p>
+        <p className="text-caption text-ash">
+          {tt("Customers named three areas in Block 1.1: relationship, communication and added value. Not one of the nine statements mentions price. A measure is worth choosing when it acts on an area customers named and keeps working when people change.", "Kunden nannten in Block 1.1 drei Bereiche: Beziehung, Kommunikation und Mehrwert. Keine der neun Aussagen erwähnt den Preis. Eine Maßnahme lohnt sich, wenn sie auf einen Bereich wirkt, den Kunden nannten, und weiterwirkt, wenn Menschen wechseln.")}
         </p>
         <OptionList<MeasureId>
           multi
@@ -305,13 +308,13 @@ export function Block23() {
           onChange={toggle}
           disabledIds={chosen.length >= CHOOSE ? MEASURES.map((m) => m.id) : []}
           onDisabledClick={() => scrollToAndFlash(IDS.measurePick, "warn")}
-          options={MEASURES.map((m) => ({ id: m.id, label: tt(`${m.name} · ${euro(m.cost)} · ${m.weeks} weeks`, `${m.name} · ${euro(m.cost)} · ${m.weeks} Wochen`), sub: `${m.what} ${m.mechanism} ${tt("Runs on:", "Läuft auf:")} ${RUNS_ON_LABEL[m.runsOn]}.` }))}
+          options={MEASURES.map((m) => ({ id: m.id, label: tt(`${m.name} · ${euro(m.cost)} · ${m.weeks} ${m.weeks === 1 ? "week" : "weeks"}`, `${m.name} · ${euro(m.cost)} · ${m.weeks} ${m.weeks === 1 ? "Woche" : "Wochen"}`), tag: tt(`Acts on: ${MEASURE_AREA_LABEL[m.area]}`, `Wirkt auf: ${MEASURE_AREA_LABEL[m.area]}`), sub: `${m.what} ${m.mechanism} ${tt("Runs on:", "Läuft auf:")} ${RUNS_ON_LABEL[m.runsOn]}.` }))}
         />
         <p role="status" className="text-caption text-ash">
           {tt(`${chosen.length} of ${CHOOSE} chosen.`, `${chosen.length} von ${CHOOSE} gewählt.`)}
           {chosen.length >= CHOOSE ? tt(" To choose another, first remove one.", " Um eine andere zu wählen, entfernen Sie zuerst eine.") : ""}
         </p>
-        <RevealHint id="aims-help" label={tt("Show the test questions", "Testfragen zeigen")} title={tt("How to match a measure to a factor · taught in Materi A2 and A7", "Wie man eine Maßnahme einem Faktor zuordnet · aus Materi A2 und A7")}>
+        <RevealHint id="aims-help" label={tt("Show the test questions", "Testfragen zeigen")} title={tt("How to match a measure to a factor · taught in Materi A2, A3 and A7", "Wie man eine Maßnahme einem Faktor zuordnet · aus Materi A2, A3 und A7")}>
           <div className="space-y-2 text-caption text-ink">
             <ul className="space-y-1.5">
               {FACTORS.map((f) => (
@@ -320,9 +323,9 @@ export function Block23() {
                 </li>
               ))}
             </ul>
-            <p>{tt("A price cut or more of the same messages builds none of the three.", "Eine Preissenkung oder mehr derselben Nachrichten baut keinen der drei auf.")}</p>
+            <p>{tt("The label after the weeks says which area of Materi A3 a measure acts on. Customers named relationship, communication and added value, never price. A price cut, or more of the same message for everyone, builds none of the three factors.", "Das Etikett hinter den Wochen sagt, auf welchen Bereich aus Materi A3 eine Maßnahme wirkt. Kunden nannten Beziehung, Kommunikation und Mehrwert, nie den Preis. Eine Preissenkung oder mehr derselben Nachricht an alle baut keinen der drei Faktoren auf.")}</p>
             <p>{SUSTAIN_RULE.v}</p>
-            <MaterialRefs refs={["A2", "A7"]} lead={tt("Taught in", "Gelehrt in")} />
+            <MaterialRefs refs={["A2", "A3", "A7"]} lead={tt("Taught in", "Gelehrt in")} />
           </div>
         </RevealHint>
       </div>
@@ -343,7 +346,7 @@ export function Block23() {
         return (
           <div key={id} id={IDS.measure(id)} className={clsx("space-y-3 rounded-lg border border-line bg-paper p-3.5", (aF || sF) && "is-flagged")}>
             <p className="font-semibold text-ink">
-              {m.name} <span className="font-normal text-ash">· {euro(m.cost)} · {tt("runs on", "läuft auf")} {RUNS_ON_LABEL[m.runsOn]}</span>
+              {m.name} <span className="font-normal text-ash">· {euro(m.cost)} · {tt("acts on", "wirkt auf")} {MEASURE_AREA_LABEL[m.area]} · {tt("runs on", "läuft auf")} {RUNS_ON_LABEL[m.runsOn]}</span>
             </p>
             <div>
               <p className="smallcaps">{tt("Which factors does it build? (choose the ones it really builds, or none)", "Welche Faktoren baut sie auf? (wählen Sie die, die sie wirklich aufbaut, oder keinen)")}</p>
@@ -449,7 +452,7 @@ export function Block23() {
           <TextBox
             id={IDS.why}
             label={tt("Why does your first priority go first?", "Warum kommt Ihre erste Priorität zuerst?")}
-            help={tt("Give the order, name the score or the reason customers gave (Block 1.1) or the stalled signals (Block 2.1) that decides it, say what the plan costs against the budget, and what you left out. At least 60 characters.", "Nennen Sie die Reihenfolge, den Wert oder den Grund der Kunden (Block 1.1) bzw. die stockenden Signale (Block 2.1), die sie entscheiden, was der Plan gegen das Budget kostet und was Sie weggelassen haben. Mindestens 60 Zeichen.")}
+            help={tt("Give the order and what decides it (your score, the reason customers gave in Block 1.1 or the stalled signals in Block 2.1), say what the three cost against the budget, and name one of the six measures you did not choose and why you left it out. At least 60 characters.", "Nennen Sie die Reihenfolge und was sie entscheidet (Ihr Wert, der Grund der Kunden in Block 1.1 oder die stockenden Signale in Block 2.1), was die drei gegen das Budget kosten, und nennen Sie eine der sechs nicht gewählten Maßnahmen und warum Sie sie weggelassen haben. Mindestens 60 Zeichen.")}
             value={l1.why}
             onChange={(v) => patch({ why: v })}
             min={60}
@@ -460,11 +463,13 @@ export function Block23() {
               steps={[
                 tt("Say which measure goes first and why: its score, or the reason customers gave (Block 1.1) or the stalled signals (Block 2.1) it answers.", "Sagen Sie, welche Maßnahme zuerst kommt und warum: ihr Wert, oder der Grund der Kunden (Block 1.1) bzw. die stockenden Signale (Block 2.1), die sie beantwortet."),
                 tt("Say what the three cost against the €140,000.", "Sagen Sie, was die drei gegen die 140.000 € kosten."),
-                tt("Say what you left out and why.", "Sagen Sie, was Sie weggelassen haben und warum."),
+                tt("“Left out” means the six measures you did not choose, not your second or third priority (those are in your plan). Name the one that tempted you most, for example one with a high score or a low price.", "„Weggelassen“ meint die sechs Maßnahmen, die Sie nicht gewählt haben, nicht Ihre zweite oder dritte Priorität (die sind in Ihrem Plan). Nennen Sie die, die Sie am meisten reizte, zum Beispiel eine mit hohem Wert oder niedrigem Preis."),
+                tt("Say why that one stays out: its score, the area it acts on, what it runs on, or that it would take the plan over the budget.", "Sagen Sie, warum sie draußen bleibt: ihr Wert, der Bereich, auf den sie wirkt, worauf sie läuft, oder dass sie den Plan über das Budget brächte."),
               ]}
               refs={[
                 { label: tt("Budget", "Budget"), value: euro(BUDGET), target: IDS.measurePick },
                 { label: tt("Your three measures cost", "Ihre drei Maßnahmen kosten"), value: euro(cost), target: IDS.measurePick },
+                ...MEASURES.filter((m) => !chosen.includes(m.id)).map((m) => ({ label: tt(`Not chosen: ${m.name}`, `Nicht gewählt: ${m.name}`), value: `${euro(m.cost)} · ${tt("acts on", "wirkt auf")} ${MEASURE_AREA_LABEL[m.area]} · ${tt("runs on", "läuft auf")} ${RUNS_ON_LABEL[m.runsOn]}`, target: IDS.measurePick })),
                 ...shown.map((id, i) => ({ label: tt(`Priority ${i + 1}: ${MEASURE_BY_ID[id].name}, your score`, `Priorität ${i + 1}: ${MEASURE_BY_ID[id].name}, Ihr Wert`), value: String(measureScore(l1, id) || "—"), target: IDS.measure(id) })),
                 { label: tt("Uncertainty signals that stalled (your tags, Block 2.1)", "Unsicherheitssignale, die stockten (Ihre Zuordnung, Block 2.1)"), value: String(tallyOf(l1.tags).stalled.uncertainty), target: "block-2-1" },
                 { label: tt("A reason customers gave (Block 1.1)", "Ein Grund der Kunden (Block 1.1)"), value: REASONS[2].quote, target: IDS.reason(REASONS[2].id) },

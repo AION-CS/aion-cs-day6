@@ -1,5 +1,5 @@
 import { MISSING_QUESTION, MISSING_TRUTH } from "@/data/approaches";
-import { BUDGET, MEASURES, MODEL_COST, MODEL_MEASURES, RUNS_ON_LABEL, modelScore, sustainBucket } from "@/data/measures";
+import { BUDGET, MEASURES, MODEL_COST, MEASURE_AREA_LABEL, MODEL_MEASURES, RUNS_ON_LABEL, modelScore, sustainBucket } from "@/data/measures";
 import { AREA_LABEL, REASONS } from "@/data/reasons";
 import { OBSERVATIONS, RESPONSES, RESPONSE_TRUTH, SIGNALS, SIGNAL_IDS, TEAMS, TEAM_ACCEPT, TRUTH_COUNTS, WEAKNESSES } from "@/data/signals";
 import {
@@ -126,11 +126,11 @@ export function measureKey(): AnswerKeyBlock {
     title: "Block 2.3 · The three measures",
     expected: `${MODEL_MEASURES.map((id) => MEASURES.find((m) => m.id === id)!.name).join(", ")} · ${euro(MODEL_COST)} of ${euro(BUDGET)}`,
     options: rows.map((m) => ({
-      label: `${m.name} · ${m.model.effect} × ${sustainBucket(m.runsOn)} × ${m.model.feasibility} = ${modelScore(m.id)} · ${euro(m.cost)} · runs on ${RUNS_ON_LABEL[m.runsOn]} · builds ${m.targets.length ? m.targets.map((t) => FACTOR_LABEL[t]).join(", ") : "none"}`,
+      label: `${m.name} · ${m.model.effect} × ${sustainBucket(m.runsOn)} × ${m.model.feasibility} = ${modelScore(m.id)} · ${euro(m.cost)} · acts on ${MEASURE_AREA_LABEL[m.area]} · runs on ${RUNS_ON_LABEL[m.runsOn]} · builds ${m.targets.length ? m.targets.map((t) => FACTOR_LABEL[t]).join(", ") : "none"}`,
       expected: MODEL_MEASURES.includes(m.id),
       why: `${m.verdict} ${m.model.note}`,
     })),
-    teachingNote: `The checks look only at the factors named (a subset of the real ones, or “none” for discount and newsletter) and at sustainability, which follows from what the measure runs on. Effect and feasibility are judged; the model values are here. The owner model scores 12 and adding it to the model three takes the plan to ${euro(MODEL_COST + 48000)}, over budget. A learner who swaps the handover for the owner model is defending depth over scale; accept it if the plan stays in budget and the why says so.`,
+    teachingNote: `The label after the weeks (acts on) is a fact from Materi A3: only the discount acts on price, an area no customer statement names; the model three act on one area each. It does not rank the measures by itself: several defend, and durability and feasibility still decide. The checks look only at the factors named (a subset of the real ones, or “none” for discount and newsletter) and at sustainability, which follows from what the measure runs on. Effect and feasibility are judged; the model values are here. The owner model scores 12 and adding it to the model three takes the plan to ${euro(MODEL_COST + 48000)}, over budget. A learner who swaps the handover for the owner model is defending depth over scale; accept it if the plan stays in budget and the why says so.`,
   };
 }
 

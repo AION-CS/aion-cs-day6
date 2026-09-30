@@ -163,7 +163,7 @@ export function whyGuide(): MentorGuide {
       { label: "Left of the budget", calc: `${n(BUDGET)} − ${n(MODEL_COST)}`, result: euro(BUDGET - MODEL_COST) },
       { label: "With the owner model added", calc: `${n(MODEL_COST)} + ${n(MEASURE_BY_ID.owner.cost)}`, result: euro(MODEL_COST + MEASURE_BY_ID.owner.cost) },
     ],
-    lookFor: ["The order and what decides it (score, the reason customers gave in 1.1, the stalled signals in 2.1, or set-up time).", "The cost against €140,000.", "What was left out, said as a decision."],
+    lookFor: ["The order and what decides it (score, the reason customers gave in 1.1, the stalled signals in 2.1, or set-up time).", "The cost against €140,000.", "One of the six measures NOT chosen (not the 2nd or 3rd priority), named, with why it stays out: its score, its area, what it runs on, or the budget."],
   };
 }
 

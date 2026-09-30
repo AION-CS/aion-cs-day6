@@ -26,6 +26,19 @@ export const SUSTAIN_RULE = bi({
   ),
 });
 
+/**
+ * The category printed after the weeks (CLAUDE.md #45): which of the areas taught in Materi A3 a measure acts on. Customers named
+ * three areas in Block 1.1 (relationship, communication, added value); a price cut is a fourth kind that no statement names. The label
+ * is a fact about the measure taken from A3's own tests, never the factor (that stays the learner's job) and never a score.
+ */
+export type MeasureArea = "rel" | "comm" | "value" | "price";
+export const MEASURE_AREA_LABEL = bi({
+  rel: t("Relationship", "Beziehung"),
+  comm: t("Communication", "Kommunikation"),
+  value: t("Added value", "Mehrwert"),
+  price: t("Price", "Preis"),
+});
+
 export type Measure = {
   id: MeasureId;
   name: string;
@@ -34,6 +47,7 @@ export type Measure = {
   runsOn: RunsOn;
   cost: number;
   weeks: number;
+  area: MeasureArea;
   targets: Factor[];
   model: { effect: Bucket; feasibility: Bucket; note: string };
   verdict: string;
@@ -48,6 +62,7 @@ export const MEASURES: Measure[] = bi([
     runsOn: "role" as RunsOn,
     cost: 48000,
     weeks: 6,
+    area: "rel" as MeasureArea,
     targets: ["trust", "appreciation"] as Factor[],
     model: { effect: 3, feasibility: 2, note: t("Strong effect on the reason customers name most, but it needs sales capacity and a rule that managers stay.", "Starke Wirkung auf den Grund, den Kunden am häufigsten nennen, braucht aber Vertriebskapazität und eine Regel, dass Manager bleiben.") },
     verdict: t("A good measure that just misses: 12 points, and with the three model measures the total would be €143,000, over budget.", "Eine gute Maßnahme, die knapp verfehlt: 12 Punkte, und mit den drei Modellmaßnahmen läge die Summe bei 143.000 €, über dem Budget."),
@@ -60,6 +75,7 @@ export const MEASURES: Measure[] = bi([
     runsOn: "process" as RunsOn,
     cost: 35000,
     weeks: 6,
+    area: "comm" as MeasureArea,
     targets: ["trust"] as Factor[],
     model: { effect: 3, feasibility: 2, note: t("Acts on the weakness that stalled every uncertainty signal; needs a CRM set-up, so feasibility 2.", "Wirkt auf die Schwäche, die jedes Unsicherheitssignal stocken ließ; braucht eine CRM-Einrichtung, daher Machbarkeit 2.") },
     verdict: t("A model measure: it turns reacting into managing, and it keeps working whoever sells.", "Eine Modellmaßnahme: Sie macht aus Reagieren Steuern, und sie wirkt, egal wer verkauft."),
@@ -72,6 +88,7 @@ export const MEASURES: Measure[] = bi([
     runsOn: "process" as RunsOn,
     cost: 40000,
     weeks: 8,
+    area: "value" as MeasureArea,
     targets: ["relevance", "appreciation"] as Factor[],
     model: { effect: 3, feasibility: 2, note: t("Answers “nobody ever told us how to use it better”; needs a template and service time, so feasibility 2.", "Beantwortet „nie hat uns jemand gezeigt, wie wir es besser nutzen“; braucht eine Vorlage und Servicezeit, daher Machbarkeit 2.") },
     verdict: t("A model measure: added value, built into the service calendar rather than left to goodwill.", "Eine Modellmaßnahme: Mehrwert, eingebaut in den Servicekalender statt dem guten Willen überlassen."),
@@ -84,6 +101,7 @@ export const MEASURES: Measure[] = bi([
     runsOn: "person" as RunsOn,
     cost: 12000,
     weeks: 4,
+    area: "rel" as MeasureArea,
     targets: ["appreciation"] as Factor[],
     model: { effect: 2, feasibility: 3, note: t("A pleasant gesture, but once a year and from no one the customer works with.", "Eine nette Geste, aber einmal im Jahr und von niemandem, mit dem der Kunde arbeitet.") },
     verdict: t("Not in the model three: 6 points. Appreciation works best when it is built into the relationship, not sent once.", "Nicht unter den drei Modellmaßnahmen: 6 Punkte. Wertschätzung wirkt am besten eingebaut in die Beziehung, nicht einmal verschickt."),
@@ -96,6 +114,7 @@ export const MEASURES: Measure[] = bi([
     runsOn: "person" as RunsOn,
     cost: 30000,
     weeks: 10,
+    area: "value" as MeasureArea,
     targets: ["relevance"] as Factor[],
     model: { effect: 2, feasibility: 2, note: t("Answers the competitor's move, but as a one-off it builds nothing lasting, and it ties up a senior engineer.", "Beantwortet den Zug des Wettbewerbers, baut aber als Einmalaktion nichts Dauerhaftes auf und bindet einen Senior Engineer.") },
     verdict: t("Rejected for now: 4 points. Useful once, not a retention system.", "Vorerst verworfen: 4 Punkte. Einmal nützlich, kein Bindungssystem."),
@@ -108,6 +127,7 @@ export const MEASURES: Measure[] = bi([
     runsOn: "process" as RunsOn,
     cost: 60000,
     weeks: 1,
+    area: "price" as MeasureArea,
     targets: [] as Factor[],
     model: { effect: 1, feasibility: 3, note: t("Price is named in none of the reasons; customers leave while satisfied, not because it is dear.", "Der Preis wird in keinem Grund genannt; Kunden gehen zufrieden, nicht weil es teuer ist.") },
     verdict: t("Rejected: it scores well on sustainability and feasibility and still acts on no emotional factor. It buys renewals, not attachment.", "Verworfen: Es punktet bei Nachhaltigkeit und Machbarkeit und wirkt trotzdem auf keinen emotionalen Faktor. Es kauft Verlängerungen, keine Bindung."),
@@ -120,6 +140,7 @@ export const MEASURES: Measure[] = bi([
     runsOn: "process" as RunsOn,
     cost: 10000,
     weeks: 3,
+    area: "comm" as MeasureArea,
     targets: [] as Factor[],
     model: { effect: 1, feasibility: 3, note: t("More of the communication customers already ignore (“twenty pages nobody reads”).", "Mehr von der Kommunikation, die Kunden schon ignorieren („zwanzig Seiten, die niemand liest“).") },
     verdict: t("Rejected: cheap and lasting, but it answers no reason customers gave.", "Verworfen: günstig und dauerhaft, beantwortet aber keinen Grund, den Kunden nannten."),
@@ -132,6 +153,7 @@ export const MEASURES: Measure[] = bi([
     runsOn: "person" as RunsOn,
     cost: 25000,
     weeks: 2,
+    area: "rel" as MeasureArea,
     targets: ["trust", "appreciation"] as Factor[],
     model: { effect: 3, feasibility: 2, note: t("Strong where it happens, but the tie belongs to one person and leaves with them.", "Stark, wo es passiert, aber die Bindung gehört einer Person und geht mit ihr.") },
     verdict: t("Not chosen: 6 points. Effective and fragile: the same problem as four account managers in two years, in reverse.", "Nicht gewählt: 6 Punkte. Wirksam und zerbrechlich: dasselbe Problem wie vier Account Manager in zwei Jahren, nur umgekehrt."),
@@ -144,6 +166,7 @@ export const MEASURES: Measure[] = bi([
     runsOn: "process" as RunsOn,
     cost: 20000,
     weeks: 4,
+    area: "rel" as MeasureArea,
     targets: ["trust"] as Factor[],
     model: { effect: 2, feasibility: 3, note: t("Answers “a number, never a name” at the moment it starts; a step of the process, cheap to run.", "Beantwortet „eine Nummer, nie ein Name“ in dem Moment, in dem es beginnt; ein Prozessschritt, günstig im Betrieb.") },
     verdict: t("A model measure: 18 points, and it links sales and service, as the plan's model solution asks.", "Eine Modellmaßnahme: 18 Punkte, und sie verbindet Vertrieb und Service, wie es die Musterlösung des Plans verlangt."),
