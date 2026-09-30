@@ -7,12 +7,12 @@ import {
   R2_FIG,
   R2_MONTHS,
   customerItems,
+  groupRowId,
   setupMonths,
 } from "@/data/route2";
 import type { ArchId } from "@/data/route2";
 import type { CalcBuilder } from "@/lib/calcBuilder";
-import { partKey, wrongParts } from "@/lib/calcBuilder";
-import { euro, tt } from "@/lib/lang";
+import { euro, num, tt } from "@/lib/lang";
 import type { R2State } from "@/store/useStore";
 
 /**
@@ -158,20 +158,130 @@ export const lossBuilder: CalcBuilder = {
   show: (v) => `${v.lost} × ${v.per}`,
 };
 
-/** Every calculator of Route 2 by its key in `r2.calc`, built from the learner's own state where a part depends on it. */
+/** Adds to each part of a builder the element that holds its printed figure, so the panel can link to it. */
+const withTargets = (b: CalcBuilder, t: Record<string, string>): CalcBuilder => ({
+  ...b,
+  get parts() {
+    return b.parts.map((p) => ({ ...p, target: t[p.id] }));
+  },
+});
+const archCard = (id: string) => `arch-${id}`;
+
+/**
+ * Every number of Route 2 by its key, built from the learner's own state where a part depends on it. Since 2026-09-30 the learner does
+ * not calculate them: the "numbers you can use" panel (components/ui/NumbersHelp.tsx) shows each result, why it is that number and
+ * where every input is printed. The task keeps the learner on composing the trigger, the assumption, the tripwire and the answer.
+ */
 export function r2Builders(r2: R2State): Record<string, CalcBuilder> {
   const out: Record<string, CalcBuilder> = {};
   for (const id of Object.keys(ARCH_BY_ID) as ArchId[]) {
-    out[`trig-${id}`] = triggerBuilder(id);
-    out[`month-${id}`] = monthBuilder(id, r2);
+    const a = ARCH_BY_ID[id];
+    out[`trig-${id}`] = withTargets(
+      triggerBuilder(id),
+      a.result === "coverage"
+        ? { needed: FIG_ROW_ID("openDeals"), all: FIG_ROW_ID("customers") }
+        : a.result === "deal"
+          ? { cost: archCard(id), per: FIG_ROW_ID("dealGP") }
+          : { cost: archCard(id), kept: FIG_ROW_ID("kept"), years: FIG_ROW_ID("years") },
+    );
+    out[`month-${id}`] = withTargets(monthBuilder(id, r2), { start: `start-${id}`, setup: archCard(id), respond: archCard(id) });
+    out[`pickup-${id}`] = withTargets(pickupBuilder(id), { cost: archCard(id), per: FIG_ROW_ID("gpCust") });
   }
-  out.pickup = pickupBuilder((r2.calc["pickup.item"] as ArchId) || null);
-  out.trip = tripBuilder(r2);
-  out.stay = stayBuilder;
-  out.loss = lossBuilder;
+  out.trip = withTargets(tripBuilder(r2), { base: FIG_ROW_ID("delighted"), cost: "arch-total", kept: FIG_ROW_ID("kept"), years: FIG_ROW_ID("years") });
+  out.stay = withTargets(stayBuilder, { customers: groupRowId("delighted"), churn: FIG_ROW_ID("churnDel"), months: "task-2" });
+  out.loss = withTargets(lossBuilder, { lost: "board-challenge", per: FIG_ROW_ID("gpCust") });
   return out;
 }
 
-/** The flags one "Check my figures" press sets for one calculator: every filled part that differs from what it should hold. */
-export const calcFlagsFor = (key: string, r2: R2State) => wrongParts(r2Builders(r2)[key], key, r2.calc);
-export { partKey };
+/** Why a number is what it is, in one or two everyday sentences, and whether it can be shown yet (it may need the learner's own choice). */
+export function numberInfo(key: string, r2: R2State): { why: string; ready: string | null } {
+  if (key.startsWith("trig-")) {
+    const a = ARCH_BY_ID[key.slice(5) as ArchId];
+    if (a.result === "coverage")
+      return {
+        ready: null,
+        why: tt(
+          "The next step, the signal rules, only works for the customers with an open deal or a renewal. So the shared record has to cover that share of all customers, not all of them.",
+          "Der nächste Schritt, die Signalregeln, wirkt nur bei den Kunden mit offenem Deal oder Verlängerung. Die gemeinsame Sicht muss also diesen Anteil aller Kunden abdecken, nicht alle.",
+        ),
+      };
+    if (a.result === "deal")
+      return {
+        ready: null,
+        why: tt(
+          "The item has paid for itself when the deals it moves earn its cost back. One deal earns the printed gross profit, so this many moved deals is the least that counts as paid back; fewer means it has not.",
+          "Der Punkt hat sich bezahlt gemacht, wenn die Deals, die er bewegt, seine Kosten zurückverdienen. Ein Deal bringt den gedruckten Rohertrag, so viele bewegte Deals sind also das Minimum für „bezahlt“; weniger heißt, es hat sich nicht gerechnet.",
+        ),
+      };
+    return {
+      ready: null,
+      why: tt(
+        "The item has paid for itself when the customers it moves to 5 of 5 keep as much gross profit over the contract as the item cost. One customer keeps the printed amount a year for the whole term.",
+        "Der Punkt hat sich bezahlt gemacht, wenn die Kunden, die er auf 5 von 5 bringt, über die Laufzeit so viel Rohertrag halten, wie er kostete. Ein Kunde hält den gedruckten Betrag pro Jahr, über die ganze Laufzeit.",
+      ),
+    };
+  }
+  if (key.startsWith("month-"))
+    return {
+      ready: r2.start[key.slice(6)] == null ? tt("Choose the month this item starts (above) and its month appears here.", "Wählen Sie oben den Startmonat dieses Punkts, dann erscheint hier sein Monat.") : null,
+      why: tt(
+        "A trigger can only be read once the item is in use and customers or deals have had time to respond: your start month, plus the months of set-up, plus the months until the response shows. Any earlier month says nothing.",
+        "Ein Trigger lässt sich erst lesen, wenn der Punkt im Einsatz ist und Kunden oder Deals Zeit zum Reagieren hatten: Ihr Startmonat, plus Monate Einrichtung, plus Monate bis die Reaktion sichtbar ist. Jeder frühere Monat sagt nichts.",
+      ),
+    };
+  if (key.startsWith("pickup-"))
+    return {
+      ready: null,
+      why: tt(
+        "When this many customers have left for the reason the item would fix, waiting has cost as much as the item. That is the moment to look at it again.",
+        "Wenn so viele Kunden aus dem Grund gegangen sind, den der Punkt beheben würde, hat das Warten so viel gekostet wie der Punkt. Das ist der Moment, ihn wieder anzusehen.",
+      ),
+    };
+  if (key === "trip") {
+    const funded = (Object.keys(r2.alloc) as ArchId[]).filter((id) => r2.alloc[id] && ARCH_BY_ID[id]);
+    return {
+      ready: customerItems(funded).length === 0 ? tt("Fund at least one item that moves customers in Block 3.5 and the number appears here.", "Finanzieren Sie in Block 3.5 mindestens einen Punkt, der Kunden bewegt, dann erscheint hier die Zahl.") : null,
+      why: tt(
+        "A tripwire has to beat today's figure by the step your funded customer items need to pay back. Today's figure plus that step, not a round number, is what shows the money was worth it.",
+        "Ein Tripwire muss den heutigen Wert um den Schritt übertreffen, den Ihre finanzierten Kundenpunkte zum Bezahltmachen brauchen. Heutiger Wert plus dieser Schritt, keine runde Zahl, zeigt, dass sich das Geld gelohnt hat.",
+      ),
+    };
+  }
+  if (key === "stay")
+    return {
+      ready: null,
+      why: tt(
+        "A group that should simply stay still loses a few customers in any six months. You are wrong only when the loss goes above what is expected, at the first whole customer above it.",
+        "Eine Gruppe, die einfach bleiben soll, verliert in jedem halben Jahr ein paar Kunden. Sie liegen erst falsch, wenn der Verlust über dem Erwarteten liegt, beim ersten ganzen Kunden darüber.",
+      ),
+    };
+  return {
+    ready: null,
+    why: tt(
+      "What the two losses cost in a year: customers lost times the gross profit a customer brings in a year. This is the figure to set against what the proposal would cost.",
+      "Was die zwei Verluste in einem Jahr kosten: verlorene Kunden mal Rohertrag, den ein Kunde pro Jahr bringt. Diese Zahl setzen Sie den Kosten des Vorschlags gegenüber.",
+    ),
+  };
+}
+
+/** A part's label without its unit hint, and its printed value in the unit the label names. */
+const partLabel = (label: string) => label.replace(/\s*\((€|%)\)\s*$/, "");
+const partValue = (label: string, v: number) => (/\(€\)\s*$/.test(label) ? euro(v) : /\(%\)\s*$/.test(label) ? `${num(v)}%` : num(v));
+
+/**
+ * One number as the learner sees it: the result, how it comes out, why, whether it can be shown yet, and every printed input with its
+ * value and the element to flash. Read by "Show the numbers you can use" and by the sentence kits (CLAUDE.md #44).
+ */
+export function numberView(key: string, r2: R2State) {
+  const b = r2Builders(r2)[key];
+  const info = numberInfo(key, r2);
+  const parts = b.parts;
+  const result = Math.round(b.compute(Object.fromEntries(parts.map((p) => [p.id, p.expected]))) * 1e6) / 1e6;
+  return {
+    result,
+    show: b.show(Object.fromEntries(parts.map((p) => [p.id, String(p.expected)]))),
+    why: info.why,
+    ready: info.ready,
+    sources: parts.map((p) => ({ label: partLabel(p.label), value: partValue(p.label, p.expected), target: p.target ?? "" })),
+  };
+}

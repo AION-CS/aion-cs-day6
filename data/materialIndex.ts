@@ -22,7 +22,7 @@ export const MATERIALS: MaterialMeta[] = bi([
   { id: "A6" as MaterialId, block: "A" as Block, title: t("Responding to signals: a simple retention system", "Auf Signale antworten: ein einfaches Bindungssystem"), minutes: 8, optional: true },
   { id: "A7" as MaterialId, block: "A" as Block, title: t("Measures for emotional retention: effect, sustainability, feasibility", "Maßnahmen für emotionale Bindung: Wirkung, Nachhaltigkeit, Machbarkeit"), minutes: 8 },
   { id: "B1" as MaterialId, block: "B" as Block, title: t("From actions to a system: the target vision", "Von Einzelaktionen zum System: das Zielbild"), minutes: 10, optional: true },
-  { id: "B2" as MaterialId, block: "B" as Block, title: t("The central process: handling signals", "Der zentrale Prozess: Umgang mit Signalen"), minutes: 10 },
+  { id: "B2" as MaterialId, block: "B" as Block, title: t("The central process: handling signals", "Der zentrale Prozess: Umgang mit Signalen"), minutes: 10, optional: true },
   { id: "B3" as MaterialId, block: "B" as Block, title: t("Where is the lever? Reach, depth, durability, scale", "Wo ist der Hebel? Reichweite, Tiefe, Dauerhaftigkeit, Skalierung"), minutes: 10, optional: true },
   { id: "B4" as MaterialId, block: "B" as Block, title: t("Integrating sales, service and marketing: who does what", "Vertrieb, Service und Marketing verbinden: wer was tut"), minutes: 10, optional: true },
   { id: "B5" as MaterialId, block: "B" as Block, title: t("Deciding without complete information, and the architecture", "Ohne vollständige Information entscheiden, und die Architektur"), minutes: 10 },

@@ -10,7 +10,8 @@ import { MentorGuide } from "@/components/ui/MentorGuide";
 import { RevealHint } from "@/components/ui/RevealHint";
 import { WritingHelp } from "@/components/ui/WritingHelp";
 import type { HelpRef } from "@/components/ui/WritingHelp";
-import { MethodHelp } from "@/components/ui/MethodHelp";
+import { NumbersHelp } from "@/components/ui/NumbersHelp";
+import { PickupKitFor, TriggerKitFor } from "@/components/task2/Kits";
 import { ExampleAnswer } from "@/components/ui/ExampleAnswer";
 import { BlockMissing } from "@/components/ui/BlockMissing";
 import {
@@ -175,7 +176,7 @@ export function Block32() {
       id="block-3-2"
       title={tt("Block 3.2 · The central process: from signal to response", "Block 3.2 · Der zentrale Prozess: vom Signal zur Antwort")}
       kind="OBJECTIVE + JUDGED"
-      core
+      core={false}
       minutes={BLOCK_MINUTES["3.2"]}
       findIt={tt("Route 2 → Task 2 → one row per signal type below, and the response curve in Materi B2. Answer in the four rows.", "Route 2 → Task 2 → eine Zeile pro Signalart unten, und die Reaktionskurve in Materi B2. Antworten Sie in den vier Zeilen.")}
     >
@@ -530,14 +531,6 @@ const RESULT_LABEL = (a: ArchItem) =>
       : tt("its trigger counts customers moved to 5 of 5", "sein Trigger zählt Kunden, die auf 5 von 5 steigen");
 const GROUP_LABEL = (a: ArchItem) => (a.group === "all" ? tt("every team (internal)", "alle Teams (intern)") : GROUPS[a.group].name);
 
-/** The sentence skeleton "Use this number" starts a trigger with: the learner's own number and month, the metric and action left open. */
-const triggerSkeleton = (a: ArchItem, n: number, month: number | null) => {
-  const m = month ?? "…";
-  if (a.result === "coverage") return tt(`If fewer than ${n}% of customers have … by month ${m}, then …`, `Haben bis Monat ${m} weniger als ${n} % der Kunden …, dann …`);
-  if (a.result === "deal") return tt(`If fewer than ${n} stalled deals have moved forward by month ${m}, then …`, `Sind bis Monat ${m} weniger als ${n} stockende Deals weitergekommen, dann …`);
-  return tt(`If fewer than ${n} customers … rate us 5 of 5 by month ${m}, then …`, `Bewerten uns bis Monat ${m} weniger als ${n} Kunden … mit 5 von 5, dann …`);
-};
-
 export function Block35() {
   const r2 = useStore((s) => s.r2);
   const patch = useStore((s) => s.patchR2);
@@ -553,7 +546,6 @@ export function Block35() {
       owner: p.owner !== undefined ? { ...s.owner, [id]: p.owner } : s.owner,
       trigger: p.trigger !== undefined ? { ...s.trigger, [id]: p.trigger } : s.trigger,
       seqResult: null,
-      calcFlags: p.start !== undefined || p.alloc !== undefined ? [] : s.calcFlags,
     }));
   const check = () =>
     patch((s) => {
@@ -564,7 +556,6 @@ export function Block35() {
   const others = f.filter((id) => id !== BASELINE_ITEM);
   const firstOther = others.length ? Math.min(...others.map((id) => r2.start[id] ?? 99)) : null;
   const notFunded = ARCH_IDS.filter((id) => !r2.alloc[id]);
-  const pickupItem = (r2.calc["pickup.item"] as ArchId) || null;
   return (
     <AnswerBlock
       id="block-3-5"
@@ -582,7 +573,7 @@ export function Block35() {
               <li>{tt("Owner: who can change it without asking anyone else?", "Owner: Wer kann es ändern, ohne jemanden zu fragen?")}</li>
               <li>{tt("Start: does something have to exist before it, such as the shared customer view?", "Start: Muss vorher etwas existieren, etwa die gemeinsame Kundensicht?")}</li>
               <li>{tt("System: would it still work if one person left?", "System: Würde es noch wirken, wenn eine Person ginge?")}</li>
-              <li>{tt("Trigger: a metric, a number worked out by the item's method, the month it can first be read, and an action.", "Trigger: eine Kennzahl, eine mit der Methode des Punkts berechnete Zahl, der Monat, in dem er zuerst gelesen werden kann, und eine Aktion.")}</li>
+              <li>{tt("Trigger: a metric, a number (given in the trigger kit), the month it can first be read, and an action.", "Trigger: eine Kennzahl, eine Zahl (im Trigger-Baukasten), der Monat, in dem er zuerst gelesen werden kann, und eine Aktion.")}</li>
             </ul>
             <p className="smallcaps text-ash">{tt("What each role can change", "Was jede Rolle ändern kann")}</p>
             <ul className="space-y-1">
@@ -600,8 +591,8 @@ export function Block35() {
       <p className="text-body text-ink">
         <Gloss>
           {tt(
-            "Fund the items you will carry out. For each funded item choose the month it starts, one owner who can change it without asking anyone else, and a trigger: a metric, a number, a month and an action. The number and the month are worked out, not guessed: each item card says what its trigger counts, and “Show the method” under the trigger calculates both from the printed figures (Materi B6). Leave out what does not fit, on purpose, and fund nothing that rests on one person.",
-            "Finanzieren Sie die Punkte, die Sie umsetzen. Wählen Sie für jeden finanzierten Punkt den Startmonat, einen Owner, der ihn ändern kann, ohne jemanden zu fragen, und einen Trigger: eine Kennzahl, eine Zahl, einen Monat und eine Aktion. Zahl und Monat werden berechnet, nicht geschätzt: Jede Karte sagt, was ihr Trigger zählt, und „Methode zeigen“ unter dem Trigger berechnet beide aus den gedruckten Zahlen (Materi B6). Lassen Sie weg, was nicht passt, bewusst, und finanzieren Sie nichts, das an einer Person hängt.",
+            "Fund the items you will carry out. For each funded item choose the month it starts, one owner who can change it without asking anyone else, and a trigger: a metric, a number, a month and an action. You do not calculate the number and the month: each item card says what its trigger counts, and “Show the trigger kit” under the trigger gives every part of the sentence, with why and where the numbers are printed (Materi B6). You put the parts in and word the trigger. Leave out what does not fit, on purpose, and fund nothing that rests on one person.",
+            "Finanzieren Sie die Punkte, die Sie umsetzen. Wählen Sie für jeden finanzierten Punkt den Startmonat, einen Owner, der ihn ändern kann, ohne jemanden zu fragen, und einen Trigger: eine Kennzahl, eine Zahl, einen Monat und eine Aktion. Zahl und Monat müssen Sie nicht berechnen: Jede Karte sagt, was ihr Trigger zählt, und „Den Trigger-Baukasten zeigen“ unter dem Trigger gibt jeden Teil des Satzes, mit Warum und Woher die Zahlen gedruckt stehen (Materi B6). Sie übernehmen die Teile und formulieren den Trigger. Lassen Sie weg, was nicht passt, bewusst, und finanzieren Sie nichts, das an einer Person hängt.",
           )}
         </Gloss>
       </p>
@@ -690,44 +681,13 @@ export function Block35() {
                 <TextBox
                   id={`${IDS.arch(a.id)}-trigger`}
                   label={tt("Trigger", "Trigger")}
-                  help={tt("If [metric] is [worse than your number] by [your month], then [action]. The number comes from the item's method, the month from your start month (Materi B6). At least 20 characters, with a number.", "Wenn [Kennzahl] bis [Ihr Monat] [schlechter als Ihre Zahl] ist, dann [Aktion]. Die Zahl kommt aus der Methode des Punkts, der Monat aus Ihrem Startmonat (Materi B6). Mindestens 20 Zeichen, mit einer Zahl.")}
+                  help={tt("If [metric] is [worse than your number] by [your month], then [action]. Open “Show the trigger kit”: each part says what to write, why and where the numbers come from, and you put them into the sentence. At least 20 characters, with a number.", "Wenn [Kennzahl] bis [Ihr Monat] [schlechter als Ihre Zahl] ist, dann [Aktion]. Öffnen Sie „Den Trigger-Baukasten zeigen“: Jeder Teil sagt, was Sie schreiben, warum und woher die Zahlen kommen, und Sie übernehmen sie in den Satz. Mindestens 20 Zeichen, mit einer Zahl.")}
                   value={r2.trigger[a.id] ?? ""}
                   onChange={(v) => setItem(a.id, { trigger: v })}
                   min={20}
                   rows={2}
                 >
-                  <div className="flex flex-wrap items-start gap-2">
-                    <WritingHelp
-                      id={`trigger-kit-${a.id}`}
-                      refs={tref()}
-                      steps={[
-                        tt(`Pick the metric: ${a.result === "coverage" ? "the share of customers with a complete record" : a.result === "deal" ? "stalled deals that moved forward" : "customers this item reached who now rate you 5 of 5"}.`, `Wählen Sie die Kennzahl: ${a.result === "coverage" ? "den Anteil der Kunden mit vollständigem Datensatz" : a.result === "deal" ? "stockende Deals, die weiterkamen" : "Kunden, die dieser Punkt erreicht hat und die Sie jetzt mit 5 von 5 bewerten"}.`),
-                        tt("Work out the number with the item's method (“Show the method”).", "Berechnen Sie die Zahl mit der Methode des Punkts („Methode zeigen“)."),
-                        tt("Work out the month: your start month + months of set-up + months until the response shows.", "Berechnen Sie den Monat: Ihr Startmonat + Monate Einrichtung + Monate, bis die Reaktion sichtbar ist."),
-                        tt("Name one action the owner can take alone if the number is missed.", "Nennen Sie eine Aktion, die der Owner allein ergreifen kann, wenn die Zahl verfehlt wird."),
-                      ]}
-                    />
-                    <MethodHelp
-                      id={`trigger-method-${a.id}`}
-                      formula={[
-                        a.result === "coverage"
-                          ? tt("Coverage share: customers the next step needs ÷ all customers × 100, rounded up.", "Abdeckungsanteil: Kunden, die der nächste Schritt braucht ÷ alle Kunden × 100, aufgerundet.")
-                          : a.result === "deal"
-                            ? tt("Payback count in deals: item cost ÷ gross profit of one deal, rounded up.", "Payback-Zähler in Deals: Kosten des Punkts ÷ Rohertrag eines Deals, aufgerundet.")
-                            : tt("Payback count in customers: item cost ÷ (gross profit kept a year per customer moved × contract years), rounded up.", "Payback-Zähler in Kunden: Kosten des Punkts ÷ (gehaltener Rohertrag pro Jahr je Kunde × Vertragsjahre), aufgerundet."),
-                        tt("The month: your start month + weeks to be in use ÷ 4 (rounded up) + months until the response shows. No later than month 6.", "Der Monat: Ihr Startmonat + Wochen bis zum Einsatz ÷ 4 (aufgerundet) + Monate, bis die Reaktion sichtbar ist. Nicht später als Monat 6."),
-                      ]}
-                      calcs={[
-                        {
-                          key: `trig-${a.id}`,
-                          title: tt("The number", "Die Zahl"),
-                          useLabel: tt("my trigger", "meinen Trigger"),
-                          onUse: (n) => setItem(a.id, { trigger: (r2.trigger[a.id] ?? "").trim() ? `${(r2.trigger[a.id] ?? "").trim()} (${n})` : triggerSkeleton(a, n, month) }),
-                        },
-                        { key: `month-${a.id}`, title: tt("The month", "Der Monat") },
-                      ]}
-                    />
-                  </div>
+                  <TriggerKitFor id={a.id} r2={r2} value={r2.trigger[a.id] ?? ""} onChange={(v) => setItem(a.id, { trigger: v })} what={RESULT_LABEL(a)} />
                 </TextBox>
                 <ExampleAnswer id={`trigger-example-${a.id}`} guide={triggerGuide(a.id)} />
                 {mentor && <MentorGuide guide={triggerGuide(a.id)} />}
@@ -774,62 +734,16 @@ export function Block35() {
           </TextBox>
           <ExampleAnswer id="postponed-example" guide={postponedGuide()} />
           <div id={IDS.pickup} className="space-y-2">
-            <div>
-              <label htmlFor="pickup-item" className="smallcaps block">
-                {tt("The item your pickup point is for", "Der Punkt, für den Ihr Pickup Point gilt")}
-              </label>
-              <select
-                id="pickup-item"
-                className="field mt-1 max-w-md"
-                value={pickupItem ?? ""}
-                onChange={(e) => patch((s) => ({ calc: { ...s.calc, "pickup.item": e.target.value }, calcFlags: s.calcFlags.filter((x) => !x.startsWith("pickup.")) }))}
-              >
-                <option value="">{tt("Choose an item you left out…", "Einen weggelassenen Punkt wählen…")}</option>
-                {notFunded.map((id) => (
-                  <option key={id} value={id}>
-                    {ARCH_BY_ID[id].name} · {euro(ARCH_BY_ID[id].cost)}
-                  </option>
-                ))}
-              </select>
-              <p className="mt-1 text-micro normal-case tracking-normal text-ash">{tt("Only for the calculator below; it is not exported.", "Nur für den Rechner unten; es wird nicht exportiert.")}</p>
-            </div>
             <TextBox
               id={`${IDS.pickup}-text`}
               label={tt("The pickup point", "Der Pickup Point")}
-              help={tt("If [number] customers leave for the reason this item would fix by [month], we fund it. The number is the cost of waiting (Materi B6). At least 15 characters, with a number.", "Wenn bis [Monat] [Zahl] Kunden aus dem Grund gehen, den dieser Punkt beheben würde, finanzieren wir ihn. Die Zahl sind die Kosten des Wartens (Materi B6). Mindestens 15 Zeichen, mit einer Zahl.")}
+              help={tt("If [number] customers leave for the reason this item would fix by [month], we fund it. Open “Show the pickup point kit”: it gives the number (the cost of waiting), the month, the reason and the action, each with why and where it comes from. At least 15 characters, with a number.", "Wenn bis [Monat] [Zahl] Kunden aus dem Grund gehen, den dieser Punkt beheben würde, finanzieren wir ihn. Öffnen Sie „Den Pickup-Point-Baukasten zeigen“: Er gibt die Zahl (die Kosten des Wartens), den Monat, den Grund und die Aktion, jeweils mit Warum und Woher. Mindestens 15 Zeichen, mit einer Zahl.")}
               value={r2.pickup}
               onChange={(v) => patch({ pickup: v })}
               min={15}
               rows={2}
             >
-              <div className="flex flex-wrap items-start gap-2">
-                <WritingHelp
-                  id="pickup-kit"
-                  refs={[
-                    ...(pickupItem ? [{ label: tt(`Cost of ${ARCH_BY_ID[pickupItem].name}`, `Kosten von ${ARCH_BY_ID[pickupItem].name}`), value: euro(ARCH_BY_ID[pickupItem].cost), target: IDS.arch(pickupItem) }] : []),
-                    figRef("gpCust"),
-                    figRef("satisfied"),
-                    { label: tt("The plan's last month", "Der letzte Monat des Plans"), value: String(R2_MONTHS), target: "task-2" },
-                  ]}
-                  steps={[
-                    tt("Choose the item the pickup point is for (above).", "Wählen Sie den Punkt, für den der Pickup Point gilt (oben)."),
-                    tt("Divide its cost by the gross profit a year one customer takes when they leave; round up.", "Teilen Sie seine Kosten durch den Rohertrag pro Jahr, den ein Kunde mitnimmt, wenn er geht; aufrunden."),
-                    tt("Say which leavers count (the reason the item would fix) and the month you look, no later than month 6.", "Sagen Sie, welche Abgänge zählen (der Grund, den der Punkt beheben würde), und den Monat, in dem Sie schauen, nicht später als Monat 6."),
-                  ]}
-                />
-                <MethodHelp
-                  id="pickup-method"
-                  formula={[tt("Cost of waiting: cost of the item left out ÷ gross profit lost when one customer leaves (contract × margin), rounded up.", "Kosten des Wartens: Kosten des weggelassenen Punkts ÷ verlorener Rohertrag, wenn ein Kunde geht (Vertrag × Marge), aufgerundet.")]}
-                  calcs={[
-                    {
-                      key: "pickup",
-                      title: tt("The number of customers", "Die Zahl der Kunden"),
-                      useLabel: tt("my pickup point", "meinen Pickup Point"),
-                      onUse: (n) => patch((s) => ({ pickup: s.pickup.trim() ? `${s.pickup.trim()} (${n})` : tt(`If ${n} or more customers leave because … by month ${R2_MONTHS}, we fund …`, `Gehen bis Monat ${R2_MONTHS} ${n} oder mehr Kunden, weil …, finanzieren wir …`) })),
-                    },
-                  ]}
-                />
-              </div>
+              <PickupKitFor notFunded={notFunded} r2={r2} value={r2.pickup} onChange={(v) => patch({ pickup: v })} />
             </TextBox>
             <ExampleAnswer id="pickup-example" guide={pickupGuide()} />
           </div>
@@ -885,7 +799,7 @@ export function Block36() {
       kind="OBJECTIVE + JUDGED"
       core
       minutes={BLOCK_MINUTES["3.6"]}
-      findIt={tt("Route 2 → Task 2 → your own answers in Blocks 3.2 and 3.5, “NetSolutions today” in the case brief, the group table and the baselines below, and the decision rules in Materi B5 and B6. Answer in the fields below.", "Route 2 → Task 2 → Ihre eigenen Antworten in den Blöcken 3.2 und 3.5, „NetSolutions heute“ im Fall, die Gruppentabelle und die Ausgangswerte unten und die Entscheidungsregeln in Materi B5 und B6. Antworten Sie in den Feldern unten.")}
+      findIt={tt("Route 2 → Task 2 → your own answers in Block 3.5, “NetSolutions today” in the case brief, the group table and the baselines below, and the decision rules in Materi B5 and B6. Answer in the fields below.", "Route 2 → Task 2 → Ihre eigenen Antworten in Block 3.5, „NetSolutions heute“ im Fall, die Gruppentabelle und die Ausgangswerte unten und die Entscheidungsregeln in Materi B5 und B6. Antworten Sie in den Feldern unten.")}
     >
       <MaterialRefs refs={["B5", "B6"]} />
       <div id={IDS.decision} className={clsx("space-y-2 rounded-lg p-1", r2.decisionFlagged && "is-flagged")}>
@@ -959,7 +873,7 @@ export function Block36() {
               ? tt("For a funded group that should move to 5 of 5, the sign uses the same number as your tripwire (below).", "Für eine finanzierte Gruppe, die auf 5 von 5 steigen soll, nutzt das Anzeichen dieselbe Zahl wie Ihr Tripwire (unten).")
               : sg?.g === "deals"
                 ? tt("For the open-deal group, the sign uses the same number and month as your playbook trigger in Block 3.5.", "Für die Gruppe mit offenen Deals nutzt das Anzeichen dieselbe Zahl und denselben Monat wie Ihr Playbook-Trigger in Block 3.5.")
-                : tt("For a group left on the standard offer, the sign is one customer more than the leavers expected in six months (“Show the method”).", "Für eine Gruppe beim Standardangebot ist das Anzeichen ein Kunde mehr als die in sechs Monaten erwarteten Abgänge („Methode zeigen“).");
+                : tt("For a group left on the standard offer, the sign is one customer more than the leavers expected in six months (“Show the numbers you can use”).", "Für eine Gruppe beim Standardangebot ist das Anzeichen ein Kunde mehr als die in sechs Monaten erwarteten Abgänge („Die Zahlen zeigen, die Sie nutzen können“).");
           return (
             <div key={i} className="space-y-1.5">
               <TextBox
@@ -978,17 +892,25 @@ export function Block36() {
                     refs={refs}
                     steps={[
                       tt("Sentence 1: name the group, what your plan bets there (or that it gets nothing extra), and what the data-confidence note says is still unsure.", "Satz 1: Nennen Sie die Gruppe, worauf Ihr Plan dort setzt (oder dass sie nichts extra bekommt), und was laut Notiz zum Datenvertrauen noch unsicher ist."),
-                      tt("Sentence 2: “I am wrong if …”: a count or rate you can read in your own CRM, a number worked out by a method, today's figure, and the month.", "Satz 2: „Ich liege falsch, wenn …“: eine Zahl oder Quote aus Ihrem eigenen CRM, eine mit einer Methode berechnete Zahl, der heutige Wert und der Monat."),
+                      tt("Sentence 2: “I am wrong if …”: a count or rate you can read in your own CRM, a number from “Show the numbers you can use”, today's figure, and the month.", "Satz 2: „Ich liege falsch, wenn …“: eine Zahl oder Quote aus Ihrem eigenen CRM, eine Zahl aus „Die Zahlen zeigen, die Sie nutzen können“, der heutige Wert und der Monat."),
                       signHint,
                       tt("Never a market estimate: it does not move inside your plan.", "Nie eine Marktschätzung: Sie bewegt sich in Ihrem Plan nicht."),
                     ]}
                   />
                   {sg?.role === "standard" && (
-                    <MethodHelp
+                    <NumbersHelp id={`assumption-method-${i}`} card="B6" calcs={[{ key: "stay", title: tt("The count that proves you wrong", "Die Zahl, die Sie widerlegt"), fmt: (n) => tt(`${n} or more leavers by month ${R2_MONTHS}`, `${n} oder mehr Abgänge bis Monat ${R2_MONTHS}`) }]} />
+                  )}
+                  {sg?.g === "satisfied" && (
+                    <NumbersHelp id={`assumption-method-${i}`} card="B6" calcs={[{ key: "trip", title: tt("The sign: the same number as your tripwire", "Das Anzeichen: dieselbe Zahl wie Ihr Tripwire"), fmt: (n) => tt(`${n} customers rating you 5 of 5`, `${n} Kunden mit 5 von 5`) }]} />
+                  )}
+                  {sg?.g === "deals" && r2.alloc.playbook && (
+                    <NumbersHelp
                       id={`assumption-method-${i}`}
                       card="B6"
-                      formula={[tt("Expected leavers = customers × yearly churn × months ÷ 12. You are wrong at the first whole customer above that.", "Erwartete Abgänge = Kunden × jährlicher Churn × Monate ÷ 12. Sie liegen falsch beim ersten ganzen Kunden darüber.")]}
-                      calcs={[{ key: "stay", title: tt("The count that proves you wrong", "Die Zahl, die Sie widerlegt") }]}
+                      calcs={[
+                        { key: "trig-playbook", title: tt("The sign: the same number as your playbook trigger", "Das Anzeichen: dieselbe Zahl wie Ihr Playbook-Trigger"), fmt: (n) => tt(`${n} stalled deals moved forward`, `${n} stockende Deals weitergekommen`) },
+                        { key: "month-playbook", title: tt("And its month", "Und sein Monat"), fmt: (n) => tt(`month ${n}`, `Monat ${n}`) },
+                      ]}
                     />
                   )}
                 </div>
@@ -1082,16 +1004,12 @@ export function Block36() {
             ]}
             steps={[
               tt("Choose a metric of customer behaviour, not of your own activity.", "Wählen Sie eine Kennzahl für Kundenverhalten, nicht für Ihre eigene Aktivität."),
-              tt("Threshold = today's delighted customers + the payback count of your funded customer items (“Show the method”).", "Schwellenwert = heutige begeisterte Kunden + der Payback-Zähler Ihrer finanzierten Kundenpunkte („Methode zeigen“)."),
+              tt("Threshold = today's delighted customers plus the step your funded customer items need to pay back (“Show the numbers you can use”).", "Schwellenwert = heutige begeisterte Kunden plus der Schritt, den Ihre finanzierten Kundenpunkte zum Bezahltmachen brauchen („Die Zahlen zeigen, die Sie nutzen können“)."),
               tt("Month = the latest month your customer items can first be read, never after month 6.", "Monat = der letzte Monat, in dem Ihre Kundenpunkte zuerst gelesen werden können, nie nach Monat 6."),
               tt("Agree now what you do if it is missed: change one item, not the whole system.", "Vereinbaren Sie jetzt, was Sie tun, wenn er verfehlt wird: einen Punkt ändern, nicht das ganze System."),
             ]}
           />
-          <MethodHelp
-            id="trip-method"
-            formula={[tt("Today plus a step: delighted customers today + (cost of your funded items that move customers ÷ (gross profit kept a year per customer moved × contract years)), the step rounded up.", "Heute plus ein Schritt: begeisterte Kunden heute + (Kosten Ihrer finanzierten Punkte, die Kunden bewegen ÷ (gehaltener Rohertrag pro Jahr je Kunde × Vertragsjahre)), der Schritt aufgerundet.")]}
-            calcs={[{ key: "trip", title: tt("The threshold", "Der Schwellenwert"), useLabel: tt("the threshold", "den Schwellenwert"), onUse: (n) => patch({ tripThreshold: String(n), tripFlags: [] }) }]}
-          />
+          <NumbersHelp id="trip-method" calcs={[{ key: "trip", title: tt("The threshold", "Der Schwellenwert"), fmt: (n) => tt(`${n} customers`, `${n} Kunden`), onUse: (n) => patch({ tripThreshold: String(n), tripFlags: [] }) }]} />
         </div>
         {mentor && <MentorGuide guide={tripGuide()} />}
       </div>
@@ -1106,7 +1024,7 @@ export function Block36() {
         <TextBox
           id={IDS.challenge}
           label={tt("What do you do?", "Was tun Sie?")}
-          help={tt("Say what you check first, what you keep, and the one thing you change. Put a number on what the two losses cost and compare it with what the proposal would cost. At least 60 characters.", "Sagen Sie, was Sie zuerst prüfen, was Sie behalten und was Sie als Einziges ändern. Beziffern Sie, was die zwei Verluste kosten, und vergleichen Sie es mit den Kosten des Vorschlags. Mindestens 60 Zeichen.")}
+          help={tt("Say what you check first, what you keep, and the one thing you change. Use the number for what the two losses cost (under “Show the numbers you can use”) and compare it with what the proposal would cost. At least 60 characters.", "Sagen Sie, was Sie zuerst prüfen, was Sie behalten und was Sie als Einziges ändern. Nutzen Sie die Zahl für die Kosten der zwei Verluste (unter „Die Zahlen zeigen, die Sie nutzen können“) und vergleichen Sie sie mit den Kosten des Vorschlags. Mindestens 60 Zeichen.")}
           value={r2.challenge}
           onChange={(v) => patch({ challenge: v })}
           min={60}
@@ -1123,16 +1041,12 @@ export function Block36() {
               ]}
               steps={[
                 tt("Check the two cases first: did the playbook log any signal from them, and was it answered in time?", "Prüfen Sie zuerst die beiden Fälle: Hat das Playbook ein Signal von ihnen erfasst, und wurde es rechtzeitig beantwortet?"),
-                tt("Put a number on the loss (customers lost × gross profit per customer) and compare it with what the proposal costs.", "Beziffern Sie den Verlust (verlorene Kunden × Rohertrag pro Kunde) und vergleichen Sie ihn mit den Kosten des Vorschlags."),
+                tt("Take the number for the loss (customers lost × gross profit per customer, shown for you) and compare it with what the proposal costs.", "Nehmen Sie die Zahl für den Verlust (verlorene Kunden × Rohertrag pro Kunde, für Sie gezeigt) und vergleichen Sie sie mit den Kosten des Vorschlags."),
                 tt("Say what still holds: two customers are two cases; your tripwire measures all of them, in its own month (Materi B5).", "Sagen Sie, was noch gilt: Zwei Kunden sind zwei Fälle; Ihr Tripwire misst alle, in seinem eigenen Monat (Materi B5)."),
                 tt("Change one thing, not the system, and say why moving money to one person's visits repeats the old weakness.", "Ändern Sie eine Sache, nicht das System, und sagen Sie, warum Geld für die Besuche einer Person die alte Schwäche wiederholt."),
               ]}
             />
-            <MethodHelp
-              id="challenge-method"
-              formula={[tt("What the losses cost a year: customers lost × gross profit a year per customer (contract × margin).", "Was die Verluste pro Jahr kosten: verlorene Kunden × Rohertrag pro Kunde und Jahr (Vertrag × Marge).")]}
-              calcs={[{ key: "loss", title: tt("What the two losses cost a year", "Was die zwei Verluste pro Jahr kosten"), unit: "€" }]}
-            />
+            <NumbersHelp id="challenge-method" calcs={[{ key: "loss", title: tt("What the two losses cost a year", "Was die zwei Verluste pro Jahr kosten"), fmt: (n) => euro(n) }]} />
           </div>
         </TextBox>
         <ExampleAnswer id="challenge-example" guide={challengeGuide()} />

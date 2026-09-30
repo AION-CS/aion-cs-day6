@@ -24,7 +24,7 @@ replaced. Nothing of DataCloud Services remains in the tree.
 | `/route-2/` **Level 3** | **Materi B**: six cards, 60 min (B1 from actions to a system: the target vision, B2 the central process: handling signals, B3 where the lever is: reach, depth, durability, scale, B4 integrating sales, service and marketing (RACI), B5 deciding without complete information, and the architecture, B6 numbers you can defend: thresholds, payback, the cost of waiting and the month; 10 min each). **Task 2, Retention System Memo**, with the live memo below the last question: 3.1 three system principles, 3.2 owner, response time and first action per signal type, 3.3 three strategic levers rated on four tests and the greatest one, 3.4 a RACI grid across sales, service, marketing and the CCO, 3.5 the implementation architecture, 3.6 the decision, three assumptions, the tripwire and the board's challenge. | `2-{name}-day6-l3-system-memo.html` |
 
 Minutes: Materi A 60 + Task 1 58 (6 + 10 + 8 + 5 + 8 + 9 + 12), Materi B 60 (6 × 10) + Task 2 51 (5 + 9 + 10 + 8 + 10 + 9). All in `lib/routes.ts`
-and `data/materialIndex.ts`. Core only (note 11): Materi A 52 + Task 1 36, Materi B 30 + Task 2 28.
+and `data/materialIndex.ts`. Core only (notes 11 and 25): Materi A 52 + Task 1 36, Materi B 20 + Task 2 19.
 
 Route 2 quotes the learner's Route 1 Core answers (the uncertainty signals tagged in 2.1, the measures chosen in 2.3) in a soft box
 (`useJumpTo`, jumping to Block 2.3) and never requires them; the routes share no answer fields.
@@ -108,12 +108,12 @@ step tables with pitfalls, every free text with what to look for). Client-side c
    objective stays open and the rest is folded to one line. Route 1 objective: *from satisfied to attached: why the tie is missing, what
    delight is worth, read the signals, choose measures*. **Core 1.1, 1.2, 2.1, 2.3**; **Optional 1.3, 1.4, 2.2**. Cards **A1 to A5 and A7**
    stay Core (1.2 now cites A1 for satisfied against delighted; 2.3 cites A2 for the factors); **A6** is Optional. Route 2 objective:
-   *decide a scalable retention system despite incomplete information*. **Core 3.2, 3.5, 3.6**; **Optional 3.1, 3.3, 3.4**. Cards **B2,
-   B5, B6** Core; **B1, B3, B4** Optional. The ring, the page map's done/total and both missing lists count Core only
+   *decide a scalable retention system despite incomplete information*. **Core 3.5, 3.6**; **Optional 3.1, 3.2, 3.3, 3.4** (narrowed on 2026-09-30, note 25). Cards **B5, B6** Core;
+   **B1, B2, B3, B4** Optional. The ring, the page map's done/total and both missing lists count Core only
    (`OPTIONAL_BLOCKS`, `optional` on the material registry, one filter in `lib/missing.ts`). The tag shows beside every page-map pill and on
    every card and block (`CorePill`). A jump to a collapsed item opens it first (`lib/flash.ts`, `store/useOptionalOpen.ts`).
 10. **Two always-live rust notices (CLAUDE.md #34):** under every answer block (`BlockMissing`) and above Export, with no click first.
-11. **Minutes of the Core thread:** Materi A 52 (A6 is 8), Task 1 36 (6 + 10 + 8 + 12); Materi B 30 (B2, B5, B6), Task 2 28 (9 + 10 + 9).
+11. **Minutes of the Core thread:** Materi A 52 (A6 is 8), Task 1 36 (6 + 10 + 8 + 12); Materi B 20 (B5, B6), Task 2 19 (10 + 9).
 12. **“Show clue and example answer” on every free-text field (CLAUDE.md #23 update).** Open fields show the mentor's model text; fields
     whose model text is a calculated result or a graded pick (1.2 sentence, 2.3 first priority, 3.2 process notes, 3.3 greatest lever,
     3.5 triggers, what is left out and the pickup point, 3.6 assumptions and the board's challenge) show a separate `example` in
@@ -129,7 +129,7 @@ step tables with pitfalls, every free text with what to look for). Client-side c
 15. **Less text by default (CLAUDE.md #37).** Research paragraphs, the Kano table and caution (A1), the worked calculation (A4), side
     callouts (A6, B3), notes (A7, B5) and Elbe's worked tables (B5, B6) sit behind “＋ Show …”; the decision rules and “why it matters /
     how to read the picture” too. Task chips open the rules, the worked calculation and tables first. One button per Materi block shows all.
-16. **Every number in Route 2 has a method, a calculator and a check (CLAUDE.md #41, #42, #43).** The model triggers used 80%, 70%, 90%, 60%
+16. **Every number in Route 2 has a method, a clue kit and, then, a calculator (CLAUDE.md #41, #42, #43). The calculators were replaced by “Show the numbers you can use” in note 24.** The model triggers used 80%, 70%, 90%, 60%
     and “3 points”, and the tripwire 33%, none of which could be derived from the screen. They are replaced by numbers worked out from
     “NetSolutions today” with the methods of the new card **B6**: shared view 80% by month 2 (coverage 120 ÷ 150), playbook 6 stalled deals
     by month 4 (€35,000 ÷ €6,000), handover 5 customers by month 5, reviews 10 by month 6, moments 6 by month 6 (cost ÷ (€1,440 × 3
@@ -166,6 +166,33 @@ step tables with pitfalls, every free text with what to look for). Client-side c
     measures the learner did not choose, not the second or third priority, asks to name the one that tempted them most and to say why it
     stays out (its score, its area, what it runs on, or the budget). The “What to look at” list shows every not-chosen measure with its cost,
     area and what it runs on, live from the learner's picks. The mentor's `lookFor` and the Word task say the same.
+24. **Route 2 shows its numbers; the learner no longer calculates (2026-09-30, user feedback; supersedes the calculators of note 16).**
+    The plan asks for no calculation in Level 3, so Blocks 3.5 and 3.6 no longer carry calculators, “Check my figures” or “Use this result”.
+    Under every field with a number there is **“Show the numbers you can use”** (`components/ui/NumbersHelp.tsx`): each number the printed
+    figures support, *why* it is that number (one or two everyday sentences), *where to find it* (every input with its printed value, each a
+    button that scrolls to and flashes its row) and a button that puts the number into the answer. The learner chooses the number and words
+    the trigger, pickup point, assumption, tripwire or answer; a different number is fine with a reason (#38). Numbers that depend on the
+    learner's own plan (start month, funded items, the item left out) are read live; a number that cannot be shown yet says what to choose
+    first. The pickup point shows one number for every item left out, so the “which item” select is gone. The three assumptions also get their
+    sign (tripwire number, playbook trigger or expected leavers). The same builders still produce the numbers, so the panel cannot drift from the
+    model answers (`verify:calc` checks each against the model, every input's link target, and the “not ready yet” cases). Materi B6 now says it
+    shows how the numbers are found, not something to do in the task. The persisted `calc` and `calcFlags` fields stay in the store so saves made
+    before load unchanged; nothing writes them and the mentor fill no longer fills them. The Word task prints the same numbers as tables.
+25. **Route 2 narrowed to Blocks 3.5 and 3.6 (2026-09-30, user decision; overrides #35's "pick Core by objective" for this route).**
+    Core is now only 3.5 (the plan's "prioritised implementation architecture": fund, sequence, own, triggers) and 3.6 (its "system decision
+    despite incomplete information"). 3.1, 3.2, 3.3 and 3.4 are Optional, and so are the cards no Core block draws on: B1, B2, B3, B4; B5 and
+    B6 stay Core. Checked against #40: 3.5 and 3.6 read only the case brief, each other, B5 and B6 (3.6's FIND IT line no longer names 3.2; the kit
+    data names no Optional card). The ring, the page map and the missing list count Core only; the Core-only mentor fill empties the list.
+26. **Ready-to-use kits under the trigger and the pickup point (2026-09-30, user decision; Route 2 standard, #44).** “Show the trigger kit”
+    (`components/ui/SentenceKit.tsx`, `components/task2/Kits.tsx`, `data/triggerKit.ts`) shows the sentence *If [metric] [worse than] by month
+    [month], then [action]* and, for every part, what to write, **why** and **where it comes from** (every printed input is a button that scrolls
+    to its row): the metric and why it is about customers; the number (“below 80%”) with how it comes out and why; the month with its three
+    parts; and three actions per item (what the owner can do alone, each with a reason). A button puts each part into the sentence, so the
+    learner sees it grow and learns what each part is while entering it. “Show the pickup point kit” does the same (number, month, the reason
+    that counts, the action) for the item left out, with a chooser for which item. This deliberately gives the parts of the answer, which is
+    against #4's “clue, not answer”; the user asked for it for Route 2 and it is written into #44. Numbers come from the same builders as the model
+    answers; `verify:calc` checks that every item has a metric, its reason and three actions with reasons in both languages, that the first action
+    of each model item is the model trigger's own, and that the kits name no Optional card.
 
 ## Dependency checklist (CLAUDE.md #40)
 
@@ -184,14 +211,14 @@ step tables with pitfalls, every free text with what to look for). Client-side c
 | **Route 2** | | | |
 | Case brief · “Where Route 1 left off” | — | Route 1 Core 2.1 and 2.3 | ✓ **fixed**: it quoted the weaknesses of Optional 2.2 and jumped there; it now quotes 2.1 and 2.3 and jumps to 2.3 (the memo too) |
 | 3.1 Principles | Optional | B1 | self-contained (its help no longer points at Route 1's weaknesses) |
-| 3.2 Signal process | Core | printed signals, B2, A5 | ✓ |
+| 3.2 Signal process | Optional | printed signals, B2, A5 | self-contained |
 | 3.3 Levers | Optional | printed levers, B3 | self-contained |
 | 3.4 RACI | Optional | B4 | self-contained |
 | 3.5 Architecture | Core | printed items, “NetSolutions today”, B5, B6 | ✓ |
-| 3.6 Decision | Core | own 3.2 and 3.5, group table, baselines, B5, B6 | ✓ **fixed**: its FIND IT line named “Blocks 3.1 to 3.5”; it now names 3.2 and 3.5 |
+| 3.6 Decision | Core | own 3.5, group table, baselines, B5, B6 | ✓ **fixed**: its FIND IT line named “Blocks 3.1 to 3.5”, then “3.2 and 3.5”; it now names only 3.5 |
 | **Cards** | | | |
-| A1–A5, A7 · B2, B5, B6 | Core | each other and the case | ✓ (B5 carries the assumption recipe, B6 the number methods) |
-| A6 · B1, B3, B4 | Optional | — | no Core block needs them |
+| A1–A5, A7 · B5, B6 | Core | each other and the case | ✓ (B5 carries the assumption recipe, B6 how the numbers are found) |
+| A6 · B1, B2, B3, B4 | Optional | — | no Core block needs them |
 
 ## Coverage: where each task block is taught
 
@@ -205,8 +232,8 @@ step tables with pitfalls, every free text with what to look for). Client-side c
 | 2.2 Weaknesses and a simple system · Optional | A3, A6 (response per type, owner teams) | Your tally · Check my choices · Check my system + clue per row |
 | 2.3 Measures, scores, order · **Core** | A2, A7 (factor matching, sustainability rule, budget) | Show the test questions · budget bar · factor coverage · Check (factors, sustainability) · order check |
 | 3.1 Principles · Optional | B1 (system tests: works when people change) | Check (shared view and signal ownership) + clue |
-| 3.2 Signal process · **Core** | A5, B2 (response curve, owner, time, action) | Show the test questions · Check (how many of twelve) + clue |
+| 3.2 Signal process · Optional | A5, B2 (response curve, owner, time, action) | Show the test questions · Check (how many of twelve) + clue |
 | 3.3 Levers · Optional | B3 (four tests, limits from the printed facts) | Show the test questions · Check (ratings above the limits, systemic count) |
 | 3.4 RACI · Optional | B4 (letter tests, role profiles, worked grid on Elbe) | Show the test questions · Check (cells + structure rule) + clue |
-| 3.5 Architecture · **Core** | B5 (baseline first, owner and trigger tests), B6 (the number methods) | Owner test · budget bar · plan reading · per trigger: what to look at, the method + two calculators (number, month) · pickup point: cost-of-waiting calculator · Check (three rules, hints only) |
-| 3.6 Decision · **Core** | B5 (decision rules, assumption recipe), B6 (today plus a step, expected leavers) | Group table with data confidence and own spend · per assumption: how to build it (+ calculator for the group left standard) · tripwire: what to look at + calculator · challenge: cost-of-losses calculator · Check (wait, activity metric, threshold) |
+| 3.5 Architecture · **Core** | B5 (baseline first, owner and trigger tests), B6 (the number methods) | Owner test · budget bar · plan reading · per trigger: what to look at, the numbers you can use (number, month, why, where) · pickup point: the cost-of-waiting number for each item left out · Check (three rules, hints only) |
+| 3.6 Decision · **Core** | B5 (decision rules, assumption recipe), B6 (today plus a step, expected leavers) | Group table with data confidence and own spend · per assumption: how to build it (+ the sign's number) · tripwire: what to look at + the threshold · challenge: the cost of the two losses · Check (wait, activity metric, threshold) |

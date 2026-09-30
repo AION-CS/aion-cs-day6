@@ -431,7 +431,7 @@ export function ArchExample() {
     },
     {
       title: tt("The point", "Das Wichtigste"),
-      say: tt("Start with what every other item reads, give each item one owner who can change it alone, and a trigger with a number, a month and an action. Materi B6 shows how the numbers are worked out.", "Beginnen Sie mit dem, was jeder andere Punkt liest, geben Sie jedem Punkt einen Owner, der ihn allein ändern kann, und einen Trigger mit Zahl, Monat und Aktion. Materi B6 zeigt, wie die Zahlen berechnet werden."),
+      say: tt("Start with what every other item reads, give each item one owner who can change it alone, and a trigger with a number, a month and an action. The task shows the numbers, and Materi B6 shows how they are found.", "Beginnen Sie mit dem, was jeder andere Punkt liest, geben Sie jedem Punkt einen Owner, der ihn allein ändern kann, und einen Trigger mit Zahl, Monat und Aktion. Die Aufgabe zeigt die Zahlen, und Materi B6 zeigt, wie sie gefunden werden."),
       look: tt("the third row and its owner", "die dritte Zeile und ihren Owner"),
       apply: () => setSelRaw("welcome"),
     },
@@ -672,8 +672,8 @@ export function NumberMethods() {
     <div className="space-y-3">
       <ThePoint>
         {tt(
-          "A number in a plan is only as good as the method behind it. Work it out from printed figures, and it tells you whether the item paid; guess it, and it only tells you what someone hoped.",
-          "Eine Zahl in einem Plan ist nur so gut wie die Methode dahinter. Rechnen Sie sie aus gedruckten Zahlen aus, dann sagt sie Ihnen, ob sich der Punkt gelohnt hat; schätzen Sie sie, dann sagt sie nur, was jemand gehofft hat.",
+          "A number in a plan is only as good as the method behind it. Find it from printed figures, and it tells you whether the item paid; guess it, and it only tells you what someone hoped.",
+          "Eine Zahl in einem Plan ist nur so gut wie die Methode dahinter. Leiten Sie sie aus gedruckten Zahlen ab, dann sagt sie Ihnen, ob sich der Punkt gelohnt hat; schätzen Sie sie, dann sagt sie nur, was jemand gehofft hat.",
         )}
       </ThePoint>
       <Story steps={story.plan} step={story.step} onStep={story.go} />

@@ -14,7 +14,7 @@ import { euro, tt } from "@/lib/lang";
  * Mentor-only worked answers for every task question the answer keys (lib/answerKey.ts) do not already cover: the numeric fields,
  * with every step of the calculation written out with its numbers, and the free-text answers, with the model text and what a good
  * answer must contain. Shown only after the mentor bar is unlocked, never exported. Numbers are computed from the same constants as
- * the tables, the calculators and the answer checks, so they cannot drift from the model answers. Mentor tools stay English
+ * the tables, the "numbers you can use" panel and the answer checks, so they cannot drift from the model answers. Mentor tools stay English
  * (CLAUDE.md #32); the model answers quoted follow the site's language, because the fill enters them in that language.
  */
 export type WorkedStep = { label: string; calc: string; result: string };
@@ -238,7 +238,7 @@ export function triggerGuide(id: ArchId): MentorGuide {
     lookFor: ["A metric about the item's effect.", "A number from the item's method and a month from the start month.", "An action the owner can take alone."],
     pitfalls: [
       a.result === "customer" ? `Kept per year not times the ${R2_FIG.years}-year term: ${n(Math.ceil(a.cost / KEPT_PER_MOVE - 1e-9))}.` : a.result === "deal" ? `A whole contract's gross profit used instead of a deal's: ${n(Math.ceil(a.cost / GP_PER_CUSTOMER - 1e-9))}.` : "100% “because every customer matters”: the playbook only needs the open-deal customers.",
-      "A round number with no method (“80%”, “20 customers”): ask which printed rows it comes from.",
+      "A round number with no reason (“80%”, “20 customers”): ask which of the numbers shown under “Show the numbers you can use” it comes from, or which printed rows.",
       "A month before the item can have worked (the start month itself).",
     ],
   };
@@ -323,7 +323,7 @@ export function assumptionGuide(i: number): MentorGuide {
     example: examples[i] ?? examples[0],
     steps: steps[i],
     why: "One assumption per group the plan serves: the two funded groups (satisfied, open deals) and the group left on the standard offer (delighted). The dissatisfied group is outside this budget, so nothing rides on it here. Each sign is a count the learner can read in the CRM, compared with today's figure, and uses the same number as the trigger or tripwire that measures the same thing.",
-    lookFor: ["A named group and what the plan bets there (or that it gets nothing extra).", "The doubt from that group's data-confidence note.", "A number worked out by a method, today's figure and a month."],
+    lookFor: ["A named group and what the plan bets there (or that it gets nothing extra).", "The doubt from that group's data-confidence note.", "A number from the ones the task shows (or another with its reason), today's figure and a month."],
     pitfalls: ["A market-growth figure as the sign: it does not move within the plan.", "An assumption about the team's effort (“service has time”) with no customer group: fine as a risk, but it is not what the block asks.", "A sign with a different threshold from the tripwire for the same group."],
   };
 }
@@ -341,7 +341,7 @@ export function tripGuide(): MentorGuide {
       { label: "Threshold = today + step", calc: `${R2_FIG.delighted} + ${MODEL_TRIPWIRE.threshold - R2_FIG.delighted}`, result: String(MODEL_TRIPWIRE.threshold) },
       { label: "Month = latest month the customer items can be read", calc: items.map((id) => `${ARCH_BY_ID[id].name} ${triggerMonth(MODEL_START[id]!, id)}`).join(", "), result: `month ${MODEL_TRIPWIRE.month}` },
     ],
-    why: "The tripwire must beat today by the step the spending needs, and be read when the last customer item can have worked. A learner who funds other items gets another step: check their arithmetic with the calculator, not against 60.",
+    why: "The tripwire must beat today by the step the spending needs, and be read when the last customer item can have worked. A learner who funds other items gets another step: the tripwire panel shows the step for their own plan, so compare with that, not with 60.",
     pitfalls: ["An activity metric (signals answered, emails sent): it measures NetSolutions, not the customers.", `Kept per year not times the term: ${R2_FIG.delighted + Math.ceil(cost / KEPT_PER_MOVE - 1e-9)}.`, "A threshold at or below today's 40."],
   };
 }

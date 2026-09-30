@@ -14,8 +14,6 @@ import type { FigureId } from "@/data/delight";
 import type { ArchId, DecisionId, KpiId, LeverId, OwnerId, PrincipleId, ProcessRow, RaciLetter } from "@/data/route2";
 import { KEY_L1, KEY_R2 } from "@/data/mentorKey";
 import { FIGURE_BUILDERS, modelParts } from "@/lib/calcBuilder";
-import { r2Builders } from "@/lib/calcR2";
-import { MODEL_ARCH, MODEL_PICKUP } from "@/data/route2";
 import type { RouteNo } from "@/lib/routes";
 
 export const STORAGE_KEY = "cs-d6-v1";
@@ -114,9 +112,9 @@ export type R2State = {
   tripAction: "" | "scale" | "adjust" | "stop";
   tripFlags: string[];
   challenge: string;
-  /** The automatic calculators of Route 2 (lib/calcR2.ts, CLAUDE.md #43): part values by "key.part", plus "pickup.item". */
+  /** No longer used (2026-09-30: Route 2 shows its numbers instead of asking for calculations). Kept so saves made before that still load. */
   calc: Record<string, string>;
-  /** Parts outlined by the last "Check my figures" of a calculator. */
+  /** No longer used, see `calc`. */
   calcFlags: string[];
   checks: number;
 };
@@ -332,12 +330,7 @@ export const useStore = create<Persisted & Session & Actions>()(
       mentorFill: () =>
         set((s) => {
           const l1: L1State = { ...emptyL1(), ...KEY_L1(), parts: modelParts(FIGURE_BUILDERS) };
-          const base: R2State = { ...emptyR2(), ...KEY_R2() };
-          const calc0: Record<string, string> = { "pickup.item": MODEL_PICKUP.item };
-          const withItem = { ...base, calc: calc0 };
-          const b = r2Builders(withItem);
-          const keys = [...MODEL_ARCH.flatMap((id) => [`trig-${id}`, `month-${id}`]), "pickup", "trip", "stay", "loss"];
-          const r2: R2State = { ...base, calc: { ...calc0, ...modelParts(Object.fromEntries(keys.map((k) => [k, b[k]]))) } };
+          const r2: R2State = { ...emptyR2(), ...KEY_R2() };
           const participant = { name: s.participant.name.trim() ? s.participant.name : "Mentor Check" };
           return { participant, l1, r2, resetCount: s.resetCount + 1 };
         }),

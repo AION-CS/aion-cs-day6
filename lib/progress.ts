@@ -17,10 +17,11 @@ export type TaskBlockId = "b11" | "b12" | "b13" | "b14" | "b21" | "b22" | "b23" 
  * Route 1 ("from satisfied to attached: know why the tie is missing, what delight is worth, read the signals and choose measures"):
  * Core 1.1 (why customers feel no tie), 1.2 (what delight is worth), 2.1 (read the twelve signals), 2.3 (choose, score and order
  * three measures). Optional 1.3, 1.4, 2.2.
- * Route 2 ("decide a scalable retention system despite incomplete information"): Core 3.2 (the signal process), 3.5 (fund, sequence,
- * own, with triggers), 3.6 (the decision, assumptions, tripwire). Optional 3.1, 3.3, 3.4.
+ * Route 2 ("decide a scalable retention system despite incomplete information"): Core 3.5 (fund, sequence, own, with triggers) and 3.6
+ * (the decision, assumptions, tripwire), the plan's own "implementation architecture" and "decision despite incomplete information" (the
+ * user narrowed Route 2 to these two on 2026-09-30). Optional 3.1, 3.2, 3.3, 3.4.
  */
-export const OPTIONAL_BLOCKS: TaskBlockId[] = ["b13", "b14", "b22", "b31", "b33", "b34"];
+export const OPTIONAL_BLOCKS: TaskBlockId[] = ["b13", "b14", "b22", "b31", "b32", "b33", "b34"];
 export const isOptionalBlock = (b: TaskBlockId) => (OPTIONAL_BLOCKS as string[]).includes(b);
 const len = (t: string) => t.trim().length;
 export const MIN_SENTENCE = 40;

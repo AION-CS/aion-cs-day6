@@ -143,11 +143,18 @@ export function Task2() {
         id="block-3-1"
         title={tt("Block 3.1 · The target vision: three principles", "Block 3.1 · Das Zielbild: drei Prinzipien")}
         minutes={BLOCK_MINUTES["3.1"]}
-        reason={tt("Names the principles behind the system; the process in Block 3.2 and the plan in Block 3.5 can be set without them.", "Benennt die Prinzipien hinter dem System; der Prozess in Block 3.2 und der Plan in Block 3.5 lassen sich auch ohne sie festlegen.")}
+        reason={tt("Names the principles behind the system; the plan in Block 3.5 and the decision in Block 3.6 can be made without them.", "Benennt die Prinzipien hinter dem System; der Plan in Block 3.5 und die Entscheidung in Block 3.6 lassen sich auch ohne sie machen.")}
       >
         <Block31 />
       </OptionalSection>
-      <Block32 />
+      <OptionalSection
+        id="block-3-2"
+        title={tt("Block 3.2 · The central process: from signal to response", "Block 3.2 · Der zentrale Prozess: vom Signal zur Antwort")}
+        minutes={BLOCK_MINUTES["3.2"]}
+        reason={tt("Sets owner, response time and first action per signal type; the plan in Block 3.5 and the decision in Block 3.6 can be made without it.", "Legt Owner, Reaktionszeit und erste Aktion je Signalart fest; der Plan in Block 3.5 und die Entscheidung in Block 3.6 lassen sich auch ohne ihn machen.")}
+      >
+        <Block32 />
+      </OptionalSection>
       <OptionalSection
         id="block-3-3"
         title={tt("Block 3.3 · Three strategic levers", "Block 3.3 · Drei strategische Hebel")}

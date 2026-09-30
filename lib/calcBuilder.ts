@@ -9,7 +9,8 @@ import { parseAmount } from "@/lib/parseAmount";
  * compared with the value it should hold, and a wrong part names the exact row to read, never the value. Expected values come from the
  * same constants as the tables and the model answers (data/delight.ts).
  */
-export type CalcPart = { id: string; label: string; expected: number; tolerance?: number; clue: string };
+/** `target`: the element that holds the printed figure (Route 2's "numbers you can use" panel links to it). */
+export type CalcPart = { id: string; label: string; expected: number; tolerance?: number; clue: string; target?: string };
 export type CalcBuilder = { parts: CalcPart[]; compute: (v: Record<string, number>) => number; show: (v: Record<string, string>) => string };
 
 const common = () => [

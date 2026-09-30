@@ -164,35 +164,44 @@ for (const l of ["en", "de"]) {
 }
 lang.setCurrentLang("en");
 
-// the calculators reproduce the model numbers and flag exactly a wrong part
+// the numbers Route 2 shows ("Show the numbers you can use") equal the model numbers, and every input links to a printed element
 {
-  const rr0 = { ...store.emptyR2(), ...key.KEY_R2(), calc: { "pickup.item": "owners" } };
+  const rr0 = { ...store.emptyR2(), ...key.KEY_R2() };
   const b = cr2.r2Builders(rr0);
   const res = (k) => calc.builderResult(b[k], k, calc.modelParts({ [k]: b[k] }));
   for (const id of r2.MODEL_ARCH) {
-    eq(`calculator trig-${id} = trigger number`, res(`trig-${id}`), r2.triggerNumber(id));
-    eq(`calculator month-${id} = trigger month`, res(`month-${id}`), r2.modelTriggerMonth(id));
+    eq(`shown number trig-${id} = trigger number`, res(`trig-${id}`), r2.triggerNumber(id));
+    eq(`shown month month-${id} = trigger month`, res(`month-${id}`), r2.modelTriggerMonth(id));
   }
-  eq("calculator pickup = 5", res("pickup"), 5);
-  eq("calculator trip = 60", res("trip"), 60);
-  eq("calculator stay = 2", res("stay"), 2);
-  eq("calculator loss = 19200", res("loss"), 19200);
-  const bad = { ...calc.modelParts({ "trig-reviews": b["trig-reviews"] }), "trig-reviews.kept": "9600" };
-  eq("a wrong part is flagged alone (kept per customer)", calc.wrongParts(b["trig-reviews"], "trig-reviews", bad), ["trig-reviews.kept"]);
-  const badM = { ...calc.modelParts({ "month-playbook": b["month-playbook"] }), "month-playbook.setup": "6" };
-  eq("a wrong month part is flagged alone (weeks not divided by 4)", calc.wrongParts(b["month-playbook"], "month-playbook", badM), ["month-playbook.setup"]);
-  // a learner who starts the reviews in month 2 gets their own month checked, not the model's
+  eq("shown pickup number for the left-out item = 5", res(`pickup-${r2.MODEL_PICKUP.item}`), 5);
+  eq("shown tripwire = 60", res("trip"), 60);
+  eq("shown stay sign = 2", res("stay"), 2);
+  eq("shown loss = 19200", res("loss"), 19200);
+  for (const [k, bb] of Object.entries(b)) ok(`every input of ${k} links to an element`, bb.parts.every((p) => typeof p.target === "string" && p.target.length > 0));
+  ok("every number has a why and is ready with the model plan", Object.keys(b).every((k) => { const i = cr2.numberInfo(k, rr0); return i.why.length > 40 && (i.ready === null || k.startsWith("month-")); }));
+  // a learner who starts the reviews in month 2 sees their own month
   const own = { ...rr0, start: { ...rr0.start, reviews: 2 } };
   const bo = cr2.r2Builders(own);
-  eq("own start month: the month calculator expects the learner's own month", calc.builderResult(bo["month-reviews"], "month-reviews", calc.modelParts({ "month-reviews": bo["month-reviews"] })), 5);
+  eq("own start month: the shown month follows the learner's own month", calc.builderResult(bo["month-reviews"], "month-reviews", calc.modelParts({ "month-reviews": bo["month-reviews"] })), 5);
+  // nothing is shown before the learner has chosen what it depends on
+  const empty = store.emptyR2();
+  ok("month is not shown before a start month is chosen", cr2.numberInfo("month-reviews", empty).ready !== null);
+  ok("tripwire is not shown before a customer item is funded", cr2.numberInfo("trip", empty).ready !== null);
 }
 
-// the mentor fill enters every calculator part (#26)
+// the trigger kits (Block 3.5): every item has a metric, its reason and three actions with reasons; the model items' own action is the first one
 {
-  store.useStore.getState().mentorFill();
-  const st = store.useStore.getState();
-  const b = cr2.r2Builders(st.r2);
-  for (const k of [...r2.MODEL_ARCH.flatMap((id) => [`trig-${id}`, `month-${id}`]), "pickup", "trip", "stay", "loss"]) ok(`mentor fill: calculator ${k} complete and right`, calc.allPartsRight(b[k], k, st.r2.calc));
+  const tk = require("@/data/triggerKit");
+  for (const l of ["en", "de"]) {
+    lang.setCurrentLang(l);
+    for (const a of r2.ARCH) {
+      const k = tk.TRIGGER_KIT[a.id];
+      ok(`[${l}] kit ${a.id}: metric, reason and 3 actions, each with a why`, !!k && k.metric.length > 10 && k.metricWhy.length > 40 && k.reason.length > 3 && k.actions.length === 3 && k.actions.every((x) => x.text.length > 10 && x.why.length > 30));
+      ok(`[${l}] kit ${a.id}: no reference to an Optional card`, !/Materi B[1-4]/.test(JSON.stringify(k)));
+    }
+    for (const id of r2.MODEL_ARCH) ok(`[${l}] kit ${id}: the model trigger's own action is offered`, r2.MODEL_TRIGGER[id] === undefined || r2.MODEL_TRIGGER[id].includes(tk.TRIGGER_KIT[id].actions[0].text));
+  }
+  lang.setCurrentLang("en");
 }
 
 // Elbe's worked numbers (Materi B5/B6) differ from the case and agree with B5's triggers
@@ -218,9 +227,9 @@ for (const l of ["en", "de"]) {
   ok(`[${l}] over budget: no budget entry in the missing list`, !missing.r2Missing(over).some((m) => /budget|Budget/.test(m.label)));
 }
 lang.setCurrentLang("en");
-eq("Optional blocks", progress.OPTIONAL_BLOCKS, ["b13", "b14", "b22", "b31", "b33", "b34"]);
+eq("Optional blocks", progress.OPTIONAL_BLOCKS, ["b13", "b14", "b22", "b31", "b32", "b33", "b34"]);
 const mi = require("@/data/materialIndex");
-eq("Optional cards", mi.MATERIALS.filter((m) => m.optional).map((m) => m.id), ["A6", "B1", "B3", "B4"]);
+eq("Optional cards", mi.MATERIALS.filter((m) => m.optional).map((m) => m.id), ["A6", "B1", "B2", "B3", "B4"]);
 eq("Materi minutes", ["A", "B"].map((b) => mi.MATERIALS.filter((m) => m.block === b).reduce((s, m) => s + m.minutes, 0)), [60, 60]);
 
 // --- key phrases are exact substrings of the item text, in both languages ------------------------------------------
