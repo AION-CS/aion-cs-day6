@@ -11,7 +11,7 @@ import { RevealHint } from "@/components/ui/RevealHint";
 import { WritingHelp } from "@/components/ui/WritingHelp";
 import type { HelpRef } from "@/components/ui/WritingHelp";
 import { NumbersHelp } from "@/components/ui/NumbersHelp";
-import { PickupKitFor, TriggerKitFor } from "@/components/task2/Kits";
+import { ArchFacts, PickupKitFor, TriggerKitFor } from "@/components/task2/Kits";
 import { ExampleAnswer } from "@/components/ui/ExampleAnswer";
 import { BlockMissing } from "@/components/ui/BlockMissing";
 import {
@@ -596,6 +596,14 @@ export function Block35() {
           )}
         </Gloss>
       </p>
+      <p className="rounded-md border border-line bg-mist/40 px-3 py-2 text-caption text-ink">
+        <Gloss>
+          {tt(
+            "Three facts sit on every card to help you decide. Take an item that rests on a process, that the others can read from, and whose payback bar is within reach. When the money is short, leave out first the item that rests on one person, then the one with the highest payback bar. An item you leave out is not thrown away: it gets a pickup point below.",
+            "Drei Fakten stehen auf jeder Karte und helfen Ihnen beim Entscheiden. Nehmen Sie einen Punkt, der auf einem Prozess beruht, aus dem die anderen lesen können und dessen Bezahltmach-Schwelle erreichbar ist. Wenn das Geld knapp ist, lassen Sie zuerst den Punkt weg, der an einer Person hängt, dann den mit der höchsten Schwelle. Ein weggelassener Punkt wird nicht weggeworfen: Er bekommt unten einen Pickup Point.",
+          )}
+        </Gloss>
+      </p>
       <div id={IDS.archTotal} className="space-y-2">
         <BudgetBar items={f.map((id) => ({ id, short: ARCH_BY_ID[id].name.split(" ")[0], cost: ARCH_BY_ID[id].cost }))} budget={R2_BUDGET} title={tt(`Funded items against the ${euro(R2_BUDGET)} budget`, `Finanzierte Punkte gegen das Budget von ${euro(R2_BUDGET)}`)} />
         <p className="text-caption text-ash" aria-live="polite">
@@ -630,7 +638,7 @@ export function Block35() {
               <p className="font-semibold text-ink">
                 {a.name}{" "}
                 <span className="font-normal text-ash">
-                  · {euro(a.cost)} · {tt(`${a.weeks} weeks to be in use`, `${a.weeks} Wochen bis zum Einsatz`)} · {tt(`response shows after ${a.respond} month${a.respond === 1 ? "" : "s"}`, `Reaktion sichtbar nach ${a.respond} ${a.respond === 1 ? "Monat" : "Monaten"}`)}
+                  · {euro(a.cost)} · {tt(`${a.weeks} ${a.weeks === 1 ? "week" : "weeks"} to be in use`, `${a.weeks} ${a.weeks === 1 ? "Woche" : "Wochen"} bis zum Einsatz`)} · {tt(`response shows after ${a.respond} month${a.respond === 1 ? "" : "s"}`, `Reaktion sichtbar nach ${a.respond} ${a.respond === 1 ? "Monat" : "Monaten"}`)}
                 </span>
               </p>
               <button type="button" aria-pressed={on} onClick={() => setItem(a.id, { alloc: !on })} className={clsx("btn btn-sm min-h-[40px] border", on ? "border-accent bg-accentSoft text-ink" : "border-line bg-paper text-ash hover:border-ash")}>
@@ -640,6 +648,7 @@ export function Block35() {
             <p className="text-caption text-ash">
               {a.what} {tt("Spends on:", "Gibt aus für:")} {GROUP_LABEL(a)} · {RESULT_LABEL(a)}.
             </p>
+            <ArchFacts id={a.id} r2={r2} />
             {on && (
               <>
                 <div className="grid gap-3 md:grid-cols-2">

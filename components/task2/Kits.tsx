@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { SentenceKit } from "@/components/ui/SentenceKit";
 import type { KitRow } from "@/components/ui/SentenceKit";
-import { ARCH_BY_ID, OWNERS, R2_MONTHS } from "@/data/route2";
+import { NEEDS_FIRST, RESTS_ON, RESTS_ON_GLYPH, RESTS_ON_LABEL } from "@/data/archFacts";
+import { ARCH_BY_ID, BASELINE_ITEM, OWNERS, R2_MONTHS } from "@/data/route2";
 import type { ArchId } from "@/data/route2";
 import { TRIGGER_KIT } from "@/data/triggerKit";
 import { numberView } from "@/lib/calcR2";
@@ -172,5 +173,40 @@ export function PickupKitFor({ notFunded, r2, value, onChange }: { notFunded: Ar
       rows={rows}
       top={chooser}
     />
+  );
+}
+
+/** The three facts printed on every item card before the learner decides: what it rests on, what it needs first, what it must earn to pay back. */
+export function ArchFacts({ id, r2 }: { id: ArchId; r2: R2State }) {
+  const a = ARCH_BY_ID[id];
+  const nv = numberView(`trig-${id}`, r2);
+  const n = nv.result;
+  const bar =
+    a.result === "coverage"
+      ? tt(`${n}% of customers need a complete record`, `${n} % der Kunden brauchen einen vollständigen Datensatz`)
+      : a.result === "deal"
+        ? tt(`${n} stalled deals must move forward`, `${n} stockende Deals müssen weiterkommen`)
+        : tt(`${n} customers must move to 5 of 5`, `${n} Kunden müssen auf 5 von 5 steigen`);
+  const rest = RESTS_ON[id];
+  return (
+    <dl className="grid gap-x-4 gap-y-1 rounded-md border border-line bg-mist/40 px-3 py-2 text-caption sm:grid-cols-3">
+      <div>
+        <dt className="smallcaps text-ash">{tt("Rests on", "Beruht auf")}</dt>
+        <dd className="text-ink">
+          <span aria-hidden className="mr-1 tracking-wider">
+            {RESTS_ON_GLYPH[rest]}
+          </span>
+          {RESTS_ON_LABEL[rest]}
+        </dd>
+      </div>
+      <div>
+        <dt className="smallcaps text-ash">{tt("Needs first", "Braucht zuerst")}</dt>
+        <dd className="text-ink">{id === BASELINE_ITEM ? NEEDS_FIRST.baseline : NEEDS_FIRST.view}</dd>
+      </div>
+      <div>
+        <dt className="smallcaps text-ash">{tt("To pay back, it must earn", "Zum Bezahltmachen muss er bringen")}</dt>
+        <dd className="text-ink">{bar}</dd>
+      </div>
+    </dl>
   );
 }

@@ -193,6 +193,12 @@ step tables with pitfalls, every free text with what to look for). Client-side c
     against #4's “clue, not answer”; the user asked for it for Route 2 and it is written into #44. Numbers come from the same builders as the model
     answers; `verify:calc` checks that every item has a metric, its reason and three actions with reasons in both languages, that the first action
     of each model item is the model trigger's own, and that the kits name no Optional card.
+27. **Three facts on every item card of Block 3.5 (2026-10-01, user decision: “give them extra information so it is easier to decide”).** Every
+    card now prints, before the learner decides, *Rests on* (a process, a named role, or one person, with ●●● / ●●○ / ●○○ beside the words),
+    *Needs first* (the shared view is read by every other item) and *To pay back, it must earn* (the payback bar: “14 customers must move to 5 of
+    5”). The bar is the same number the trigger kit gives (`numberView`), `RESTS_ON` (`data/archFacts.ts`) matches the one-person flag (checked by
+    `verify:calc`), and one rule above the cards says how to read them; card B5 teaches it as a rule. They are facts, not a verdict: the learner
+    still decides and gives the reason (#38). The Word task prints the same table. The “1 weeks” on the discount card is fixed.
 
 ## Dependency checklist (CLAUDE.md #40)
 

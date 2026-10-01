@@ -542,11 +542,11 @@ export const GLOSSARY: GlossEntry[] = [
   {
     id: "payback",
     title: "Payback count",
-    match: ["payback count", "payback", "pays back", "pay back", "paid for itself", "pays for itself"],
+    match: ["payback count", "payback bar", "payback", "pays back", "pay back", "paid for itself", "pays for itself"],
     plain: "How many results an item must bring before it has earned back what it cost: the cost divided by what one result is worth, rounded up. It turns “we hope it works” into a number you can check.",
     example: "An item costs €18,000 and each customer it wins is worth €2,520: 18,000 ÷ 2,520 = 7.1, so it needs 8 customers.",
     from: "Materi B6",
-    de: { title: "Payback-Zähler", match: ["Payback-Zähler", "Payback", "rechnet sich", "rechnen sich", "bezahlt gemacht"], plain: "Wie viele Ergebnisse ein Punkt bringen muss, bis er seine Kosten wieder eingespielt hat: die Kosten geteilt durch den Wert eines Ergebnisses, aufgerundet. So wird aus „wir hoffen, es wirkt“ eine prüfbare Zahl.", example: "Ein Punkt kostet 18.000 €, jeder gewonnene Kunde ist 2.520 € wert: 18.000 ÷ 2.520 = 7,1, also braucht er 8 Kunden." },
+    de: { title: "Payback-Zähler", match: ["Payback-Zähler", "Bezahltmach-Schwelle", "Payback", "rechnet sich", "rechnen sich", "bezahlt gemacht"], plain: "Wie viele Ergebnisse ein Punkt bringen muss, bis er seine Kosten wieder eingespielt hat: die Kosten geteilt durch den Wert eines Ergebnisses, aufgerundet. So wird aus „wir hoffen, es wirkt“ eine prüfbare Zahl.", example: "Ein Punkt kostet 18.000 €, jeder gewonnene Kunde ist 2.520 € wert: 18.000 ÷ 2.520 = 7,1, also braucht er 8 Kunden." },
   },
   {
     id: "coverage",

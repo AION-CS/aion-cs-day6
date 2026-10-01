@@ -204,6 +204,14 @@ lang.setCurrentLang("en");
   lang.setCurrentLang("en");
 }
 
+// the facts on every item card (Block 3.5): what it rests on matches the one-person flag, and the payback bar is the trigger number
+{
+  const af = require("@/data/archFacts");
+  ok("every item has a restsOn fact", r2.ARCH.every((a) => ["process", "role", "person"].includes(af.RESTS_ON[a.id])));
+  ok("restsOn person matches the one-person flag", r2.ARCH.every((a) => (af.RESTS_ON[a.id] === "person") === a.onePerson));
+  ok("the shared view is the baseline item and needs nothing first", r2.BASELINE_ITEM === "view");
+}
+
 // Elbe's worked numbers (Materi B5/B6) differ from the case and agree with B5's triggers
 {
   const dB = require("@/components/materi/diagramsB");
